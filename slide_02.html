@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 02 – Vorqualifikation</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.2vh; min-height:0; justify-content:center; }
+  .columns { flex:0 0 auto; display:flex; gap:2vw; }
+
+  /* LEFT */
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; gap:0.75vh; }
+
+  /* Pre-Frame Banner */
+  .preframe {
+    border-radius:10px; flex-shrink:0;
+    background:rgba(91,143,241,0.10); border:1px solid rgba(91,143,241,0.28);
+    padding:clamp(7px,0.8vh,11px) clamp(12px,1.2vw,16px);
+    display:flex; align-items:center; gap:0.8vw;
+    position:relative; overflow:hidden;
+  }
+  .preframe::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.5),transparent); }
+  .preframe-icon svg { width:clamp(13px,1.2vw,17px); height:clamp(13px,1.2vw,17px); flex-shrink:0; }
+  .preframe-text { font-size:clamp(10px,0.85vw,13px); color:rgba(255,255,255,0.82); line-height:1.4; }
+  .preframe-text strong { color:#5b8ff1; font-weight:700; }
+
+  .col-label { font-size:clamp(10px,0.82vw,13px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:0.2vh; flex-shrink:0; }
+
+  .q-card {
+    border-radius:10px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+    padding:clamp(8px,0.9vh,12px) clamp(12px,1.1vw,15px);
+    display:flex; align-items:flex-start; gap:0.9vw;
+    position:relative; overflow:hidden;
+  }
+  .q-card.active { background:rgba(91,143,241,0.07); border-color:rgba(91,143,241,0.22); }
+  .q-card.active::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.3),transparent); }
+  .q-num {
+    width:clamp(20px,1.9vw,28px); height:clamp(20px,1.9vw,28px);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:clamp(9px,0.78vw,12px); font-weight:900; flex-shrink:0; margin-top:1px;
+    background:rgba(91,143,241,0.12); border:1px solid rgba(91,143,241,0.3); color:#5b8ff1;
+  }
+  .q-content { flex:1; min-width:0; }
+  .q-text { font-size:clamp(11px,0.92vw,14px); font-weight:700; color:#ffffff; line-height:1.3; }
+  .q-text em { font-style:italic; color:rgba(255,255,255,0.6); font-weight:400; font-size:0.9em; }
+  .q-listen { font-size:clamp(9px,0.76vw,12px); color:rgba(255,255,255,0.45); line-height:1.35; margin-top:0.25vh; display:flex; align-items:flex-start; gap:0.4vw; }
+  .q-listen-icon { color:#5b8ff1; font-weight:700; flex-shrink:0; }
+  .q-tag { flex-shrink:0; align-self:center; padding:2px 7px; border-radius:7px; font-size:clamp(8px,0.68vw,10px); font-weight:700; letter-spacing:0.07em; text-transform:uppercase; }
+  .q-tag.blue   { background:rgba(91,143,241,0.15); color:#5b8ff1; border:1px solid rgba(91,143,241,0.25); }
+  .q-tag.green  { background:rgba(52,199,89,0.12); color:#34c759; border:1px solid rgba(52,199,89,0.25); }
+  .q-tag.orange { background:rgba(255,165,0,0.1); color:#ffb347; border:1px solid rgba(255,165,0,0.2); }
+
+  /* RIGHT */
+  .right { width:29vw; flex-shrink:0; display:flex; flex-direction:column; gap:0.85vh; }
+
+  /* Einwand-Reframe — prominent */
+  .reframe-box {
+    flex-shrink:0; border-radius:11px;
+    background:linear-gradient(145deg,rgba(91,143,241,0.12) 0%,rgba(91,143,241,0.04) 100%);
+    border:1px solid rgba(91,143,241,0.32);
+    padding:clamp(10px,1.1vh,15px) clamp(12px,1.2vw,16px);
+    position:relative; overflow:hidden;
+    display:flex; flex-direction:column; gap:0.6vh;
+  }
+  .reframe-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.55),transparent); }
+  .reframe-label { font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#5b8ff1; }
+  .reframe-quote {
+    font-size:clamp(11px,0.92vw,14px); font-weight:700; color:rgba(255,255,255,0.55);
+    font-style:italic; border-left:2px solid rgba(91,143,241,0.4); padding-left:0.8vw;
+  }
+  .reframe-answer { font-size:clamp(11px,0.92vw,14px); font-weight:700; color:#ffffff; line-height:1.4; }
+  .reframe-answer em { font-style:normal; color:#5b8ff1; }
+  .reframe-sub { font-size:clamp(10px,0.8vw,12px); color:rgba(255,255,255,0.52); line-height:1.4; }
+
+  /* Echter vs. Tourist */
+  .compare-wrap { display:flex; gap:0.7vw; flex-shrink:0; }
+  .compare-col { flex:1; border-radius:10px; padding:clamp(8px,0.9vh,13px) clamp(9px,0.9vw,13px); display:flex; flex-direction:column; gap:0.55vh; }
+  .compare-col.real { background:rgba(52,199,89,0.07); border:1px solid rgba(52,199,89,0.2); }
+  .compare-col.fake { background:rgba(255,100,80,0.06); border:1px solid rgba(255,100,80,0.18); }
+  .compare-header { font-size:clamp(9px,0.78vw,12px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.1vh; }
+  .compare-col.real .compare-header { color:#34c759; }
+  .compare-col.fake .compare-header { color:#ff6b6b; }
+  .compare-item { display:flex; align-items:flex-start; gap:0.4vw; font-size:clamp(9px,0.78vw,12px); color:rgba(255,255,255,0.72); line-height:1.35; }
+  .ci-dot { width:4px; height:4px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .compare-col.real .ci-dot { background:#34c759; }
+  .compare-col.fake .ci-dot { background:#ff6b6b; }
+
+  /* K.O. */
+  .ko-box { flex-shrink:0; border-radius:10px; background:rgba(255,100,80,0.05); border:1px solid rgba(255,100,80,0.16); padding:clamp(8px,0.9vh,12px) clamp(12px,1.1vw,15px); display:flex; flex-direction:column; gap:0.5vh; }
+  .ko-label { font-size:clamp(9px,0.78vw,12px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#ff6b6b; margin-bottom:0.1vh; }
+  .ko-item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(9px,0.78vw,12px); color:rgba(255,255,255,0.65); line-height:1.35; }
+  .ko-icon { color:#ff6b6b; flex-shrink:0; font-weight:700; }
+
+  /* RULE BOX */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25);
+    padding:clamp(10px,1.1vh,15px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(12px,0.95vw,15px); color:rgba(255,255,255,0.85); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .columns     { animation:fadein 0.6s ease 0.15s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.4s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">02 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">Vorqualifikation</div>
+      <div class="headline">5 Fragen. 5 Minuten. <span class="hl">Klarheit.</span></div>
+    </div>
+
+    <div class="body">
+      <div class="columns">
+
+        <!-- LEFT: 5 FRAGEN -->
+        <div class="left">
+
+          <div class="preframe">
+            <div class="preframe-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="preframe-text"><strong>Pre-Frame:</strong> &ldquo;Ich stelle Ihnen kurz 5 Fragen &mdash; damit ich Ihnen gezielt zeigen kann, was f&uuml;r Sie passt. Das dauert keine 5 Minuten.&rdquo; &mdash; Dann f&uuml;hren, nicht fragen.</div>
+          </div>
+
+          <div class="col-label">Die 5 Qualifikationsfragen &mdash; in dieser Reihenfolge</div>
+
+          <div class="q-card active">
+            <div class="q-num">1</div>
+            <div class="q-content">
+              <div class="q-text">Planen Sie eher selbst einzuziehen &mdash; oder als Kapitalanlage?</div>
+              <div class="q-listen"><span class="q-listen-icon">&rarr;</span> Erste Frage immer. Bestimmt jedes weitere Gespr&auml;ch: Eigennutzer kaufen Gef&uuml;hl, Anleger kaufen Zahlen.</div>
+            </div>
+            <div class="q-tag green">Kaufmotiv</div>
+          </div>
+
+          <div class="q-card active">
+            <div class="q-num">2</div>
+            <div class="q-content">
+              <div class="q-text">Wann planen Sie den Einzug &mdash; oder die Vermietung? <em>&ldquo;Grobe Vorstellung reicht.&rdquo;</em></div>
+              <div class="q-listen"><span class="q-listen-icon">&rarr;</span> Zeitrahmen konkret = ernst gemeint. &ldquo;Irgendwann mal&rdquo; = Dringlichkeit erzeugen.</div>
+            </div>
+            <div class="q-tag orange">Dringlichkeit</div>
+          </div>
+
+          <div class="q-card active">
+            <div class="q-num">3</div>
+            <div class="q-content">
+              <div class="q-text">Haben Sie bereits mit einer Bank gesprochen? <em>&ldquo;Nur grob &mdash; kein Stress.&rdquo;</em></div>
+              <div class="q-listen"><span class="q-listen-icon">&rarr;</span> Kein Gespr&auml;ch = Aufgabe setzen: &ldquo;Das machen wir parallel &mdash; ich empfehle Ihnen einen Kontakt.&rdquo;</div>
+            </div>
+            <div class="q-tag blue">Finanzierung</div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-num">4</div>
+            <div class="q-content">
+              <div class="q-text">Entscheiden Sie das alleine &mdash; oder gemeinsam mit jemandem?</div>
+              <div class="q-listen"><span class="q-listen-icon">&rarr;</span> Beide Entscheider m&uuml;ssen beim Termin dabei sein. Sonst keinen Termin vereinbaren.</div>
+            </div>
+            <div class="q-tag orange">Entscheider</div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-num">5</div>
+            <div class="q-content">
+              <div class="q-text">Schauen Sie sich gerade auch andere Projekte an?</div>
+              <div class="q-listen"><span class="q-listen-icon">&rarr;</span> &ldquo;Nein&rdquo; = Floskel. Wettbewerb konkret = Dringlichkeit nutzen: &ldquo;Dann sollten wir uns jetzt kurz Zeit nehmen.&rdquo;</div>
+            </div>
+            <div class="q-tag blue">Alternativen</div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+
+          <!-- EINWAND-REFRAME — prominent oben -->
+          <div class="reframe-box">
+            <div class="reframe-label">
+              <svg style="display:inline;vertical-align:middle;margin-right:4px;" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              H&auml;ufiger Einwand &mdash; und wie du ihn wendest
+            </div>
+            <div class="reframe-quote">&ldquo;Ich hab mich nur aus Interesse eingetragen.&rdquo;</div>
+            <div class="reframe-answer">
+              <em>Interesse ist das Stichwort.</em> Wer sich eintr&auml;gt, hat einen Grund &mdash; deine Aufgabe ist, ihn herauszufinden.
+            </div>
+            <div class="reframe-sub">
+              Antwort: &ldquo;Genau deshalb rufe ich an &mdash; damit ich verstehe was Sie interessiert und ob das Projekt wirklich zu Ihnen passt. Darf ich kurz drei Fragen stellen?&rdquo;
+            </div>
+          </div>
+
+          <div class="compare-wrap">
+            <div class="compare-col real">
+              <div class="compare-header">&#10003;&nbsp; Echter Interessent</div>
+              <div class="compare-item"><div class="ci-dot"></div>Nennt konkreten Zeitrahmen</div>
+              <div class="compare-item"><div class="ci-dot"></div>Hat Finanzierung gecheckt</div>
+              <div class="compare-item"><div class="ci-dot"></div>Klare Motivation (EN/KA)</div>
+              <div class="compare-item"><div class="ci-dot"></div>Entscheider erreichbar</div>
+              <div class="compare-item"><div class="ci-dot"></div>Stellt konkrete Fragen</div>
+            </div>
+            <div class="compare-col fake">
+              <div class="compare-header">&#10005;&nbsp; Besichtigungstourist</div>
+              <div class="compare-item"><div class="ci-dot"></div>&ldquo;Irgendwann, kein Stress&rdquo;</div>
+              <div class="compare-item"><div class="ci-dot"></div>Kein EK, keine Bank</div>
+              <div class="compare-item"><div class="ci-dot"></div>Vage (&ldquo;schauen wir mal&rdquo;)</div>
+              <div class="compare-item"><div class="ci-dot"></div>Partner &ldquo;hat keine Zeit&rdquo;</div>
+              <div class="compare-item"><div class="ci-dot"></div>Fragt nur nach dem Preis</div>
+            </div>
+          </div>
+
+          <div class="ko-box">
+            <div class="ko-label">&#9888;&nbsp; K.O.-Kriterien &mdash; kein Termin wenn</div>
+            <div class="ko-item"><div class="ko-icon">&#10005;</div>Kein Eigenkapital &amp; kein Finanzierungsgespr&auml;ch</div>
+            <div class="ko-item"><div class="ko-icon">&#10005;</div>Hauptentscheider kommt nicht mit zum Termin</div>
+            <div class="ko-item"><div class="ko-icon">&#10005;</div>Zeitrahmen &uuml;ber 18 Monate ohne konkreten Anlass</div>
+          </div>
+
+        </div>
+
+      </div><!-- end .columns -->
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="rule-text">
+          <strong>Jeder der sich eintr&auml;gt, hat einen Grund.</strong> Dein Job ist nicht zu entscheiden ob jemand kauft &mdash;
+          dein Job ist, <em>den Grund zu finden</em> und daraus einen Termin zu machen.
+          Wer nach Frage 2 aufh&ouml;rt, verschenkt 80&nbsp;% seiner Pipeline.
+        </div>
+      </div>
+
+    </div><!-- end .body -->
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
