@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 02.1 – Vorqualifikation Hands-on</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.2vh; min-height:0; justify-content:center; }
+  .columns { flex:0 0 auto; display:flex; gap:2vw; align-items:flex-start; }
+
+  /* ── LEFT: Opening Script ── */
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; gap:0; }
+
+  .script-card {
+    border-radius:14px;
+    background:linear-gradient(160deg,#1f2535 0%,#252d40 100%);
+    border:1px solid rgba(91,143,241,0.3);
+    box-shadow:0 0 40px rgba(91,143,241,0.08),inset 0 0 30px rgba(91,143,241,0.03);
+    overflow:hidden; position:relative;
+  }
+  .script-card::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.6),transparent); }
+
+  .script-header {
+    padding:clamp(10px,1.1vh,15px) clamp(14px,1.4vw,20px);
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid rgba(91,143,241,0.15);
+  }
+  .script-title { font-size:clamp(10px,0.85vw,13px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#5b8ff1; display:flex; align-items:center; gap:0.6vw; }
+  .script-badge { font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; border-radius:6px; background:rgba(52,199,89,0.12); color:#34c759; border:1px solid rgba(52,199,89,0.25); }
+
+  .script-steps { padding:clamp(10px,1.1vh,14px) clamp(14px,1.4vw,20px); display:flex; flex-direction:column; gap:0.8vh; }
+
+  .script-step { display:flex; gap:0.9vw; align-items:flex-start; }
+  .step-marker {
+    flex-shrink:0; width:clamp(18px,1.7vw,24px); height:clamp(18px,1.7vw,24px);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:clamp(9px,0.75vw,11px); font-weight:900; margin-top:1px;
+    background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3); color:#5b8ff1;
+  }
+  .step-body { flex:1; min-width:0; }
+  .step-label { font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.38); margin-bottom:0.2vh; }
+
+  /* Script-Bubble — das sind die zu sprechenden Worte */
+  .script-bubble {
+    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.18);
+    border-radius:8px; padding:clamp(7px,0.8vh,11px) clamp(10px,1vw,14px);
+    font-size:clamp(11px,0.9vw,14px); color:#ffffff; line-height:1.45; font-style:italic;
+  }
+  .script-bubble .placeholder { color:#5b8ff1; font-style:normal; font-weight:700; }
+  .script-tip { font-size:clamp(9px,0.75vw,12px); color:rgba(255,255,255,0.42); line-height:1.35; margin-top:0.25vh; display:flex; gap:0.4vw; }
+  .script-tip-icon { color:#5b8ff1; flex-shrink:0; }
+
+  /* WA Optional */
+  .wa-optional {
+    margin-top:0.8vh; border-radius:10px;
+    background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.18);
+    padding:clamp(8px,0.9vh,12px) clamp(12px,1.2vw,16px);
+    display:flex; align-items:flex-start; gap:0.8vw;
+  }
+  .wa-icon svg { width:clamp(14px,1.3vw,18px); height:clamp(14px,1.3vw,18px); flex-shrink:0; margin-top:1px; }
+  .wa-content { flex:1; }
+  .wa-label { font-size:clamp(9px,0.75vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#25d366; margin-bottom:0.25vh; }
+  .wa-text { font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.75); line-height:1.4; font-style:italic; }
+  .wa-sub { font-size:clamp(9px,0.72vw,11px); color:rgba(255,255,255,0.4); line-height:1.35; margin-top:0.2vh; }
+
+  /* ── RIGHT ── */
+  .right { width:31vw; flex-shrink:0; display:flex; flex-direction:column; gap:0.9vh; }
+
+  .r-card {
+    border-radius:11px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+    padding:clamp(10px,1.1vh,14px) clamp(12px,1.2vw,16px);
+    display:flex; flex-direction:column; gap:0.6vh;
+    position:relative; overflow:hidden;
+  }
+  .r-card.blue  { background:rgba(91,143,241,0.07); border-color:rgba(91,143,241,0.22); }
+  .r-card.green { background:rgba(37,211,102,0.06); border-color:rgba(37,211,102,0.2); }
+  .r-card.blue::before  { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .r-card.green::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(37,211,102,0.3),transparent); }
+
+  .r-card-header { display:flex; align-items:center; gap:0.7vw; }
+  .r-card-icon { flex-shrink:0; }
+  .r-card-icon svg { width:clamp(14px,1.3vw,18px); height:clamp(14px,1.3vw,18px); }
+  .r-card-title { font-size:clamp(12px,1vw,15px); font-weight:700; color:#ffffff; line-height:1.2; }
+  .r-card-sub { font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.55); line-height:1.4; }
+  .r-card-sub strong { color:rgba(255,255,255,0.85); font-weight:700; }
+  .r-card-sub em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .r-item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.72); line-height:1.4; }
+  .r-dot { width:4px; height:4px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .blue .r-dot { background:#5b8ff1; }
+  .green .r-dot { background:#25d366; }
+  .r-card .r-dot { background:rgba(255,255,255,0.3); }
+
+  .r-divider { height:1px; background:rgba(255,255,255,0.07); }
+  .blue .r-divider { background:rgba(91,143,241,0.2); }
+
+  /* Magic Question */
+  .magic-box {
+    border-radius:11px; flex-shrink:0;
+    background:rgba(255,196,0,0.06); border:1px solid rgba(255,196,0,0.18);
+    padding:clamp(9px,1vh,13px) clamp(12px,1.2vw,16px);
+    display:flex; flex-direction:column; gap:0.5vh;
+    position:relative; overflow:hidden;
+  }
+  .magic-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,196,0,0.3),transparent); }
+  .magic-label { font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#ffc400; display:flex; align-items:center; gap:0.5vw; }
+  .magic-q { font-size:clamp(11px,0.92vw,14px); font-weight:700; color:#ffffff; line-height:1.45; font-style:italic; }
+  .magic-sub { font-size:clamp(9px,0.75vw,12px); color:rgba(255,255,255,0.45); line-height:1.35; }
+
+  /* RULE BOX — neubau.marketing Support */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:linear-gradient(135deg,rgba(91,143,241,0.10) 0%,rgba(91,143,241,0.04) 100%);
+    border:1px solid rgba(91,143,241,0.28);
+    padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.45),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.85); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+  .rule-badge {
+    flex-shrink:0; padding:clamp(6px,0.7vh,10px) clamp(12px,1.2vw,18px); border-radius:8px;
+    background:rgba(37,211,102,0.12); border:1px solid rgba(37,211,102,0.25);
+    font-size:clamp(10px,0.82vw,13px); font-weight:700; color:#25d366; white-space:nowrap;
+    display:flex; align-items:center; gap:0.5vw;
+  }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .columns     { animation:fadein 0.6s ease 0.15s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.4s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">02.1 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">Vorqualifikation &mdash; Hands-on</div>
+      <div class="headline">Was du brauchst. <span class="hl">Was du sagst.</span></div>
+    </div>
+
+    <div class="body">
+      <div class="columns">
+
+        <!-- LEFT: OPENING SCRIPT -->
+        <div class="left">
+          <div class="script-card">
+            <div class="script-header">
+              <div class="script-title">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Opening Script &mdash; Wortlaut
+              </div>
+              <div class="script-badge">Auswendig lernen</div>
+            </div>
+
+            <div class="script-steps">
+
+              <div class="script-step">
+                <div class="step-marker">1</div>
+                <div class="step-body">
+                  <div class="step-label">Einstieg &mdash; erst Name, dann du</div>
+                  <div class="script-bubble">&ldquo;Guten Tag, <span class="placeholder">[Vorname Nachname]</span>?&rdquo;</div>
+                  <div class="script-tip"><span class="script-tip-icon">&rarr;</span> Kurze Pause. Er best&auml;tigt. Erst dann kommst du.</div>
+                </div>
+              </div>
+
+              <div class="script-step">
+                <div class="step-marker">2</div>
+                <div class="step-body">
+                  <div class="step-label">Vorstellen + Anlass</div>
+                  <div class="script-bubble">&ldquo;Hier ist <span class="placeholder">[dein Vorname]</span> von <span class="placeholder">[Firmenname]</span>. Ich melde mich wegen Ihrer Anfrage zum Projekt <span class="placeholder">[Projektname]</span>.&rdquo;</div>
+                </div>
+              </div>
+
+              <div class="script-step">
+                <div class="step-marker">3</div>
+                <div class="step-body">
+                  <div class="step-label">Pre-Frame setzen</div>
+                  <div class="script-bubble">&ldquo;Ich stelle Ihnen kurz 3 Fragen &mdash; damit ich verstehe was f&uuml;r Sie passt und ob ein gemeinsames Gespr&auml;ch Sinn macht. Das dauert keine 5 Minuten. Passt das gerade?&rdquo;</div>
+                  <div class="script-tip"><span class="script-tip-icon">&rarr;</span> &ldquo;Nein, gerade schlecht&rdquo;: &ldquo;Kein Problem &mdash; wann passt es Ihnen besser, heute Nachmittag oder morgen fr&uuml;h?&rdquo;</div>
+                </div>
+              </div>
+
+              <div class="script-step">
+                <div class="step-marker">4</div>
+                <div class="step-body">
+                  <div class="step-label">Erste Frage &mdash; Kaufmotiv</div>
+                  <div class="script-bubble">&ldquo;Erstmal kurz: Planen Sie eher selbst einzuziehen &mdash; oder eher als Kapitalanlage?&rdquo;</div>
+                  <div class="script-tip"><span class="script-tip-icon">&rarr;</span> Antwort bestimmt alle weiteren Fragen. Ab hier: Vorqualifikations-Script (Slide 02).</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- WA OPTIONAL -->
+          <div class="wa-optional">
+            <div class="wa-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+            </div>
+            <div class="wa-content">
+              <div class="wa-label">Optional &mdash; WhatsApp vor dem Anruf</div>
+              <div class="wa-text">&ldquo;Guten Tag <span style="color:#25d366;font-style:normal;font-weight:700;">[Vorname]</span>, ich melde mich gleich kurz wegen Ihrer Anfrage zu <span style="color:#25d366;font-style:normal;font-weight:700;">[Projekt]</span> &mdash; passt das gerade?&rdquo;</div>
+              <div class="wa-sub">Erh&ouml;ht Annahmequote deutlich &mdash; besonders bei schwer erreichbaren Interessenten. Auch als Backup-Kanal nach 2 verpassten Anrufen nutzen.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+
+          <!-- BOOKING TOOL -->
+          <div class="r-card blue">
+            <div class="r-card-header">
+              <div class="r-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <div class="r-card-title">Kalenderbuchungs-Tool</div>
+            </div>
+            <div class="r-card-sub"><strong>Empfehlung:</strong> <em>Zoho Bookings</em> oder Calendly &mdash; beides funktioniert, Zoho bereits eingerichtet.</div>
+            <div class="r-divider"></div>
+            <div class="r-item"><div class="r-dot"></div><strong style="color:#fff;">Meeting-Titel:</strong>&nbsp;<span style="color:rgba(255,255,255,0.75);font-style:italic;">&ldquo;Projektvorstellung <span style="color:#5b8ff1;font-style:normal;">[Projektname]</span>&rdquo;</span></div>
+            <div class="r-item"><div class="r-dot"></div>Automatische Terminbest&auml;tigung direkt nach Buchung</div>
+            <div class="r-item"><div class="r-dot"></div><strong style="color:#fff;">1 Erinnerung: ~4 Stunden vor dem Termin</strong> &mdash; reicht f&uuml;r den Start</div>
+            <div class="r-item"><div class="r-dot"></div><strong style="color:rgba(255,255,255,0.85);">No-Show-Rate hoch?</strong> Erinnerungen auf 24h + 2h umstellen &mdash; zusätzlich WhatsApp als zweiten Kanal dazuschalten <span style="color:rgba(255,255,255,0.4);">(Multichannel)</span></div>
+          </div>
+
+          <!-- ZUSAMMENFASSENDE MAIL -->
+          <div class="r-card">
+            <div class="r-card-header">
+              <div class="r-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <div class="r-card-title">Zusammenfassende Mail</div>
+            </div>
+            <div class="r-card-sub">Falls Terminierung <strong>vorerst nicht m&ouml;glich</strong> &mdash; personalisiert, kurz, direkt.</div>
+            <div class="r-divider"></div>
+            <div class="r-item"><div class="r-dot"></div><strong style="color:#34c759;">Eigennutzer:</strong>&nbsp;3 emotionale USPs + Lagevorteile + CTA Termin</div>
+            <div class="r-item"><div class="r-dot"></div><strong style="color:#5b8ff1;">Kapitalanleger:</strong>&nbsp;Mietrendite + AfA-Vorteil + Marktlage + CTA Termin</div>
+            <div class="r-item"><div class="r-dot"></div>Max. 5 S&auml;tze &mdash; Exposé als Anhang, kein Flie&szlig;text-Block</div>
+            <div class="r-item"><div class="r-dot"></div>Betreff: <span style="font-style:italic;color:rgba(255,255,255,0.65);">&ldquo;Kurz zu Ihrer Anfrage &mdash; [Projektname]&rdquo;</span></div>
+          </div>
+
+          <!-- MAGIC QUESTION -->
+          <div class="magic-box">
+            <div class="magic-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffc400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Magic Question &mdash; falls kein sofortiger Termin
+            </div>
+            <div class="magic-q">&ldquo;Was m&uuml;sste ich Ihnen zeigen, damit Sie sagen: Das ist genau das, was ich gesucht habe?&rdquo;</div>
+            <div class="magic-sub">Erzeugt Commitment, liefert das perfekte Briefing f&uuml;r die Zusammenfassungsmail und zeigt echtes Interesse.</div>
+          </div>
+
+        </div>
+
+      </div><!-- end .columns -->
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="rule-text">
+          <strong>Du bist nicht allein.</strong> neubau<span style="color:#5b8ff1;">.</span>marketing steht in eurer <em>gemeinsamen WhatsApp-Gruppe</em> jederzeit f&uuml;r Fragen zur Verf&uuml;gung &mdash;
+          tagesaktuelle Scripts und Argumentationshilfen schicken wir auf Anfrage direkt rein.
+        </div>
+        <div class="rule-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          WhatsApp-Support
+        </div>
+      </div>
+
+    </div><!-- end .body -->
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
