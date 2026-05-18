@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>neubau.marketing &ndash; Vertriebssystem 2026</title>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; background:#2c313c; font-family:sans-serif; }
+
+  .pres-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; z-index:0; }
+
+  .slide-frame {
+    position:absolute; inset:0; width:100%; height:100%;
+    border:none; display:block;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.4s ease;
+  }
+  .slide-frame.active { opacity:1; pointer-events:all; }
+
+  /* Loading */
+  #init-loading {
+    position:fixed; inset:0; background:#2c313c;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3vh; z-index:200; transition:opacity 0.6s ease;
+  }
+  #init-loading.hidden { opacity:0; pointer-events:none; }
+  .init-logo { width:clamp(160px,16vw,260px); height:auto; opacity:0.9; }
+  .init-bar-wrap { width:clamp(160px,18vw,280px); height:2px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+  .init-bar { height:100%; width:0%; background:linear-gradient(90deg,#5b8ff1,#7aaaf5); border-radius:2px; transition:width 0.15s ease; }
+  .init-label { font-family:'Roboto',sans-serif; font-size:clamp(10px,0.8vw,13px); font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+
+  /* Nav buttons */
+  .nav-btn {
+    position:fixed; top:50%; transform:translateY(-50%);
+    width:clamp(36px,3.5vw,52px); height:clamp(36px,3.5vw,52px);
+    border-radius:50%; background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3);
+    color:#ffffff; font-size:clamp(16px,1.5vw,22px); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    z-index:100; transition:background 0.2s, border-color 0.2s, opacity 0.3s, transform 0.2s;
+    backdrop-filter:blur(8px); opacity:0.4;
+  }
+  .nav-btn:hover { background:rgba(91,143,241,0.35); border-color:rgba(91,143,241,0.7); opacity:1; transform:translateY(-50%) scale(1.08); }
+  .nav-btn.hidden { opacity:0!important; pointer-events:none; }
+  #btn-prev { left:1.5vw; }
+  #btn-next { right:1.5vw; }
+
+  /* Dot counter */
+  #counter {
+    position:fixed; bottom:2.5vh; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; align-items:center; z-index:100;
+    opacity:0.4; transition:opacity 0.2s;
+  }
+  #counter:hover { opacity:1; }
+  .counter-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,0.3);
+    transition:background 0.3s, transform 0.3s; cursor:pointer;
+  }
+  .counter-dot.active { background:#5b8ff1; transform:scale(1.4); box-shadow:0 0 8px rgba(91,143,241,0.6); }
+
+  /* Slide number overlay */
+  #slide-counter {
+    position:fixed; bottom:2.5vh; right:4.5vw;
+    font-family:'Roboto',sans-serif;
+    font-size:clamp(11px,0.88vw,14px); font-weight:700;
+    letter-spacing:0.14em; text-transform:uppercase;
+    color:rgba(255,255,255,0.25);
+    z-index:100; pointer-events:none;
+    transition:opacity 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<div class="pres-wrap" id="pres-wrap"></div>
+<button class="nav-btn hidden" id="btn-prev">&#8592;</button>
+<button class="nav-btn" id="btn-next">&#8594;</button>
+<div id="counter"></div>
+<div id="slide-counter"></div>
+
+<div id="init-loading">
+  <img class="init-logo" src="https://ik.imagekit.io/ViewRStudio/Neobau%20Digital%20GmbH/Grafik/Logo/5.png" alt="neubau.marketing">
+  <div class="init-bar-wrap"><div class="init-bar" id="init-bar"></div></div>
+  <div class="init-label" id="init-label">Wird geladen&hellip;</div>
+</div>
+
+<script>
+  const BASE = 'https://neobau-digital-gmbh.github.io/abverkaufssystem/';
+
+  // Slides aktualisieren sobald neue hinzukommen
+  const SLIDES = [
+    BASE + 'slide_00.html',
+    BASE + 'slide_01.html',
+    BASE + 'slide_02.html',
+    BASE + 'slide_03.html',
+    BASE + 'slide_04.html',
+    BASE + 'slide_05.html',
+    BASE + 'slide_06.html',
+    BASE + 'slide_07.html',
+    BASE + 'slide_08.html',
+    BASE + 'slide_09.html',
+  ];
+
+  let current = 0, isTransitioning = false;
+  const frames = [];
+  const presWrap     = document.getElementById('pres-wrap');
+  const btnPrev      = document.getElementById('btn-prev');
+  const btnNext      = document.getElementById('btn-next');
+  const counter      = document.getElementById('counter');
+  const slideCounter = document.getElementById('slide-counter');
+  const initLoad     = document.getElementById('init-loading');
+  const initBar      = document.getElementById('init-bar');
+  const initLabel    = document.getElementById('init-label');
+
+  // Dots
+  SLIDES.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'counter-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    counter.appendChild(dot);
+  });
+
+  // iFrames laden
+  let loadedCount = 0;
+  SLIDES.forEach((url, i) => {
+    const iframe = document.createElement('iframe');
+    iframe.className = 'slide-frame' + (i === 0 ? ' active' : '');
+    iframe.src = url;
+    iframe.setAttribute('loading', 'eager');
+    iframe.onload = () => {
+      loadedCount++;
+      const pct = Math.round((loadedCount / SLIDES.length) * 100);
+      initBar.style.width = pct + '%';
+      initLabel.textContent = pct < 100 ? 'Lade\u2026 ' + pct + '%' : 'Bereit.';
+      if (loadedCount === SLIDES.length) {
+        setTimeout(() => {
+          initLoad.classList.add('hidden');
+          setTimeout(() => initLoad.remove(), 700);
+        }, 400);
+      }
+    };
+    presWrap.appendChild(iframe);
+    frames.push(iframe);
+  });
+
+  function updateUI() {
+    document.querySelectorAll('.counter-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    btnPrev.classList.toggle('hidden', current === 0);
+    btnNext.classList.toggle('hidden', current === SLIDES.length - 1);
+    slideCounter.textContent = String(current).padStart(2, '0') + ' / ' + String(SLIDES.length - 1).padStart(2, '0');
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= SLIDES.length || index === current || isTransitioning) return;
+    isTransitioning = true;
+    const prev = frames[current], next = frames[index];
+    prev.style.opacity = '0'; prev.style.pointerEvents = 'none';
+    setTimeout(() => {
+      prev.classList.remove('active');
+      next.classList.add('active');
+      next.style.opacity = '1'; next.style.pointerEvents = 'all';
+      current = index; updateUI();
+      setTimeout(() => { isTransitioning = false; }, 400);
+    }, 50);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End')  { e.preventDefault(); goTo(SLIDES.length - 1); }
+  });
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+  updateUI();
+</script>
+</body>
+</html>
