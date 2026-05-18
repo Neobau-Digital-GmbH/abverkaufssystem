@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 04 – Eigennutzer vs. Kapitalanleger</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+
+  /* HINWEIS-BANNER oben */
+  .hint-bar {
+    flex-shrink:0; border-radius:10px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    padding:clamp(7px,0.8vh,11px) clamp(14px,1.4vw,20px);
+    display:flex; align-items:center; gap:1.5vw;
+    font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.65); line-height:1.4;
+  }
+  .hint-bar svg { flex-shrink:0; }
+  .hint-bar strong { color:#ffffff; font-weight:700; }
+  .hint-bar em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  /* HAUPTSPALTEN */
+  .cols { flex:0 0 auto; display:flex; gap:1.5vw; }
+
+  /* SPALTE BASIS */
+  .col {
+    flex:1; border-radius:14px;
+    padding:clamp(14px,1.5vh,20px) clamp(14px,1.4vw,20px);
+    display:flex; flex-direction:column; gap:1.1vh;
+    position:relative; overflow:hidden;
+  }
+  .col-en {
+    background:linear-gradient(160deg, rgba(52,199,89,0.09) 0%, rgba(52,199,89,0.03) 100%);
+    border:1px solid rgba(52,199,89,0.28);
+  }
+  .col-ka {
+    background:linear-gradient(160deg, rgba(91,143,241,0.10) 0%, rgba(91,143,241,0.03) 100%);
+    border:1px solid rgba(91,143,241,0.3);
+  }
+  .col-en::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(52,199,89,0.5),transparent); }
+  .col-ka::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.6),transparent); }
+
+  /* COL HEADER */
+  .col-header { display:flex; align-items:center; gap:0.8vw; flex-shrink:0; }
+  .col-icon {
+    width:clamp(32px,3vw,44px); height:clamp(32px,3vw,44px);
+    border-radius:10px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .col-en .col-icon { background:rgba(52,199,89,0.15); border:1px solid rgba(52,199,89,0.3); }
+  .col-ka .col-icon { background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3); }
+  .col-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); }
+  .col-title { font-size:clamp(17px,1.7vw,26px); font-weight:900; line-height:1; }
+  .col-en .col-title { color:#34c759; }
+  .col-ka .col-title { color:#7aaaf5; }
+  .col-subtitle { font-size:clamp(10px,0.82vw,13px); font-weight:400; color:rgba(255,255,255,0.5); margin-top:0.2vh; }
+
+  .col-divider { height:1px; flex-shrink:0; }
+  .col-en .col-divider { background:rgba(52,199,89,0.18); }
+  .col-ka .col-divider { background:rgba(91,143,241,0.2); }
+
+  /* SECTION LABEL */
+  .sec-label { font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; flex-shrink:0; }
+  .col-en .sec-label { color:rgba(52,199,89,0.7); }
+  .col-ka .sec-label { color:rgba(91,143,241,0.75); }
+
+  /* WICHTIG ITEMS */
+  .item-list { display:flex; flex-direction:column; gap:0.4vh; }
+  .item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.8); line-height:1.35; }
+  .item-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .col-en .item-dot { background:#34c759; }
+  .col-ka .item-dot { background:#5b8ff1; }
+
+  /* SAG DAS — Bubble */
+  .say-bubble {
+    border-radius:9px; padding:clamp(9px,1vh,13px) clamp(11px,1.1vw,15px);
+    font-size:clamp(11px,0.9vw,14px); font-style:italic; color:#ffffff; line-height:1.5;
+    position:relative;
+  }
+  .col-en .say-bubble { background:rgba(52,199,89,0.10); border:1px solid rgba(52,199,89,0.22); }
+  .col-ka .say-bubble { background:rgba(91,143,241,0.10); border:1px solid rgba(91,143,241,0.22); }
+
+  /* NICHT SAGEN */
+  .not-row { display:flex; flex-direction:column; gap:0.35vh; }
+  .not-item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.5); line-height:1.35; text-decoration:line-through; text-decoration-color:rgba(255,80,60,0.5); }
+  .not-icon { color:#ff6060; font-size:clamp(9px,0.72vw,11px); flex-shrink:0; margin-top:3px; font-style:normal; text-decoration:none; }
+
+  /* 2026 ARGUMENT */
+  .arg-box {
+    margin-top:auto; border-radius:9px;
+    padding:clamp(9px,1vh,13px) clamp(11px,1.1vw,15px);
+    display:flex; flex-direction:column; gap:0.3vh;
+  }
+  .col-en .arg-box { background:rgba(52,199,89,0.08); border:1px solid rgba(52,199,89,0.2); }
+  .col-ka .arg-box { background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.2); }
+  .arg-label { font-size:clamp(8px,0.68vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+  .col-en .arg-label { color:rgba(52,199,89,0.7); }
+  .col-ka .arg-label { color:rgba(91,143,241,0.75); }
+  .arg-text { font-size:clamp(11px,0.9vw,14px); font-weight:700; color:#ffffff; line-height:1.4; }
+  .arg-text em { font-style:normal; }
+  .col-en .arg-text em { color:#34c759; }
+  .col-ka .arg-text em { color:#7aaaf5; }
+
+  /* VS TRENNER */
+  .vs-divider {
+    flex-shrink:0; width:clamp(28px,2.5vw,40px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5vh;
+  }
+  .vs-line { flex:1; width:1px; background:rgba(255,255,255,0.08); }
+  .vs-label {
+    font-size:clamp(11px,1vw,15px); font-weight:900; color:rgba(255,255,255,0.2);
+    letter-spacing:0.05em;
+  }
+
+  /* RULE BOX */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(255,80,60,0.06); border:1px solid rgba(255,80,60,0.2);
+    padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,80,60,0.35),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#ff8070; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .hint-bar    { animation:fadein 0.6s ease 0.12s both; }
+  .cols        { animation:fadein 0.6s ease 0.2s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.38s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">04 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">Zwei Gespr&auml;che</div>
+      <div class="headline">Eigennutzer oder Kapitalanleger &mdash; <span class="hl">niemals dasselbe.</span></div>
+    </div>
+
+    <div class="body">
+
+      <!-- HINWEIS -->
+      <div class="hint-bar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span><strong>Kaufmotiv kennst du bereits aus Frage 1 der Vorqualifikation (Slide 02).</strong> Diese Seite zeigt dir: Wie f&uuml;hrst du das Gespr&auml;ch ab jetzt &mdash; je nach Antwort?</span>
+      </div>
+
+      <!-- ZWEI SPALTEN -->
+      <div class="cols">
+
+        <!-- EIGENNUTZER -->
+        <div class="col col-en">
+          <div class="col-header">
+            <div class="col-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div>
+              <div class="col-title">Eigennutzer</div>
+              <div class="col-subtitle">Plant selbst einzuziehen &mdash; kauft mit dem Gef&uuml;hl</div>
+            </div>
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Was ihm wirklich wichtig ist</div>
+          <div class="item-list">
+            <div class="item"><div class="item-dot"></div>Wie f&uuml;hlt es sich an, hier zu wohnen?</div>
+            <div class="item"><div class="item-dot"></div>Nachbarschaft, Infrastruktur, Schule, Lage</div>
+            <div class="item"><div class="item-dot"></div>Grundriss passt zum Alltag der Familie</div>
+            <div class="item"><div class="item-dot"></div>Endlich unabh&auml;ngig vom Vermieter</div>
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Sag das &mdash; Wortlaut</div>
+          <div class="say-bubble">
+            &ldquo;Stellen Sie sich vor, Sie kommen morgens aus dieser Wohnung raus &mdash; hier ist Ihr Caf&eacute;, dort die Schule. Das geh&ouml;rt Ihnen. Kein Vermieter, der k&uuml;ndigt.&rdquo;
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Sag das <span style="color:#ff6060;">NICHT</span></div>
+          <div class="not-row">
+            <div class="not-item"><span class="not-icon">&#10005;</span>&nbsp;Rendite, Mieteinnahmen, Abschreibung</div>
+            <div class="not-item"><span class="not-icon">&#10005;</span>&nbsp;Kaufpreisfaktor, Bruttomietrendite</div>
+          </div>
+
+          <div class="arg-box">
+            <div class="arg-label">&#9733;&nbsp; St&auml;rkstes Argument 2026</div>
+            <div class="arg-text">
+              &ldquo;Jede Miete die Sie heute zahlen, <em>baut Verm&ouml;gen f&uuml;r Ihren Vermieter auf</em> &mdash; nicht f&uuml;r Sie. Das &auml;ndert sich mit diesem Kauf.&rdquo;
+            </div>
+          </div>
+        </div>
+
+        <!-- VS -->
+        <div class="vs-divider">
+          <div class="vs-line"></div>
+          <div class="vs-label">VS</div>
+          <div class="vs-line"></div>
+        </div>
+
+        <!-- KAPITALANLEGER -->
+        <div class="col col-ka">
+          <div class="col-header">
+            <div class="col-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#7aaaf5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="col-title">Kapitalanleger</div>
+              <div class="col-subtitle">Kauft zur Vermietung &mdash; kauft mit den Zahlen</div>
+            </div>
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Was ihm wirklich wichtig ist</div>
+          <div class="item-list">
+            <div class="item"><div class="item-dot"></div>Wie viel bleibt monatlich &uuml;brig (Cashflow)?</div>
+            <div class="item"><div class="item-dot"></div>Wie gut ist die Wohnung vermietbar?</div>
+            <div class="item"><div class="item-dot"></div>Wie viel Steuern spare ich durch Abschreibung?</div>
+            <div class="item"><div class="item-dot"></div>Steigt der Wert der Immobilie langfristig?</div>
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Sag das &mdash; Wortlaut</div>
+          <div class="say-bubble">
+            &ldquo;Bei 20&nbsp;% Eigenkapital und KfW-F&ouml;rderung finanziert die Miete einen Gro&szlig;teil der Rate &mdash; und der Staat beteiligt sich durch die steuerliche Abschreibung. Soll ich das kurz durchrechnen?&rdquo;
+          </div>
+          <div class="col-divider"></div>
+
+          <div class="sec-label">Sag das <span style="color:#ff6060;">NICHT</span></div>
+          <div class="not-row">
+            <div class="not-item"><span class="not-icon">&#10005;</span>&nbsp;Wie sch&ouml;n die Wohnung ist, tolle Aussicht</div>
+            <div class="not-item"><span class="not-icon">&#10005;</span>&nbsp;Emotionale Bilder malen, Lebensgef&uuml;hl</div>
+          </div>
+
+          <div class="arg-box">
+            <div class="arg-label">&#9733;&nbsp; St&auml;rkstes Argument 2026</div>
+            <div class="arg-text">
+              &ldquo;Mieten steigen, Kaufpreise steigen &mdash; wer jetzt kauft, <em>profitiert von beiden Entwicklungen gleichzeitig.</em> Wer wartet, zahlt beides teurer.&rdquo;
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end .cols -->
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff8070" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="rule-text">
+          <strong>Wer dem Eigennutzer Renditezahlen nennt, verliert ihn.</strong>
+          Wer dem Anleger Bilder malt, verliert ihn auch.
+          Frag zuerst &mdash; dann f&uuml;hr das <em>richtige Gespr&auml;ch.</em>
+          Ein Satz passt f&uuml;r beide: <em>&ldquo;Darf ich kurz fragen &mdash; planen Sie selbst einzuziehen?&rdquo;</em>
+        </div>
+      </div>
+
+    </div><!-- end .body -->
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
