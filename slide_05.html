@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 05 – Das Online-Meeting</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+  .columns { flex:0 0 auto; display:flex; gap:2vw; align-items:flex-start; }
+
+  /* ── LEFT: TIMELINE ── */
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; gap:0; }
+  .phases-label { font-size:clamp(10px,0.82vw,13px); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:0.5vh; flex-shrink:0; }
+
+  .phase-row { display:flex; gap:0.8vw; align-items:stretch; }
+  .phase-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:clamp(24px,2.2vw,34px); }
+
+  .phase-num {
+    width:clamp(22px,2vw,30px); height:clamp(22px,2vw,30px);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:clamp(9px,0.75vw,12px); font-weight:900; flex-shrink:0; z-index:1;
+  }
+  .pn-normal  { background:rgba(91,143,241,0.12); border:1px solid rgba(91,143,241,0.3); color:#5b8ff1; }
+  .pn-key     { background:rgba(255,196,0,0.18);  border:1px solid rgba(255,196,0,0.5);  color:#ffc400; }
+  .pn-closing { background:rgba(52,199,89,0.15);  border:1px solid rgba(52,199,89,0.45); color:#34c759; }
+
+  .phase-connector { width:1px; flex:1; min-height:4px; background:rgba(91,143,241,0.18); margin:2px 0; }
+
+  .phase-content { flex:1; min-width:0; padding-bottom:0.75vh; display:flex; flex-direction:column; gap:0.3vh; }
+  .phase-row:last-child .phase-content { padding-bottom:0; }
+
+  .phase-top { display:flex; align-items:center; gap:0.6vw; }
+  .phase-time {
+    font-size:clamp(8px,0.66vw,10px); font-weight:700; letter-spacing:0.07em;
+    text-transform:uppercase; padding:1px 6px; border-radius:5px; flex-shrink:0;
+  }
+  .pt-normal  { background:rgba(91,143,241,0.1);  color:rgba(91,143,241,0.8); border:1px solid rgba(91,143,241,0.18); }
+  .pt-key     { background:rgba(255,196,0,0.12);  color:#ffc400; border:1px solid rgba(255,196,0,0.22); }
+  .pt-closing { background:rgba(52,199,89,0.12);  color:#34c759; border:1px solid rgba(52,199,89,0.22); }
+
+  .phase-name { font-size:clamp(11px,0.95vw,15px); font-weight:900; color:#ffffff; }
+  .phase-name.key     { color:#ffc400; }
+  .phase-name.closing { color:#34c759; }
+
+  /* Wortlaut-Bubble */
+  .phase-say {
+    font-size:clamp(10px,0.82vw,13px); font-style:italic;
+    color:rgba(255,255,255,0.82); line-height:1.4;
+    border-left:2px solid rgba(91,143,241,0.35);
+    padding-left:0.6vw; margin-top:0.15vh;
+  }
+  .phase-say.say-key     { border-left-color:rgba(255,196,0,0.5); }
+  .phase-say.say-closing { border-left-color:rgba(52,199,89,0.5); color:#ffffff; }
+  .phase-say .ph { color:#5b8ff1; font-style:normal; font-weight:700; }
+  .phase-say .emphasis { color:#ffffff; font-style:normal; font-weight:700; }
+
+  .phase-tip {
+    font-size:clamp(9px,0.75vw,12px); color:rgba(255,255,255,0.4);
+    line-height:1.3; margin-top:0.1vh;
+    display:flex; gap:0.3vw;
+  }
+  .phase-tip-arrow { color:#5b8ff1; flex-shrink:0; }
+
+  /* ── RIGHT ── */
+  .right { width:26vw; flex-shrink:0; display:flex; flex-direction:column; gap:0.85vh; }
+
+  .r-card { border-radius:11px; padding:clamp(10px,1.1vh,14px) clamp(11px,1.1vw,16px); display:flex; flex-direction:column; gap:0.55vh; position:relative; overflow:hidden; }
+  .r-card.standard { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); }
+  .r-card.blue { background:rgba(91,143,241,0.07); border:1px solid rgba(91,143,241,0.22); }
+  .r-card.standard::after { content:''; position:absolute; top:0; left:8%; right:8%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.09),transparent); }
+  .r-card.blue::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+
+  .r-title { font-size:clamp(11px,0.9vw,14px); font-weight:700; color:#ffffff; display:flex; align-items:center; gap:0.5vw; }
+  .r-title svg { flex-shrink:0; }
+  .r-sub { font-size:clamp(9px,0.75vw,12px); color:rgba(255,255,255,0.42); }
+
+  .r-item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.72); line-height:1.35; }
+  .r-check { width:clamp(13px,1.2vw,17px); height:clamp(13px,1.2vw,17px); border-radius:4px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.04); flex-shrink:0; margin-top:1px; }
+  .r-dot { width:4px; height:4px; border-radius:50%; background:#5b8ff1; flex-shrink:0; margin-top:5px; }
+  .r-item strong { color:#ffffff; font-weight:700; }
+
+  .r-divider { height:1px; background:rgba(255,255,255,0.06); }
+  .r-card.blue .r-divider { background:rgba(91,143,241,0.2); }
+
+  /* RULE BOX */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25);
+    padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .columns     { animation:fadein 0.6s ease 0.15s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.38s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">05 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">Das Online-Meeting</div>
+      <div class="headline">45 Minuten. 7 Schritte. <span class="hl">Ein Ziel: Reservierung.</span></div>
+    </div>
+
+    <div class="body">
+      <div class="columns">
+
+        <!-- LEFT: TIMELINE mit Wortlaut -->
+        <div class="left">
+          <div class="phases-label">Ablauf &mdash; in dieser Reihenfolge. Mit Wortlaut zum Ablesen.</div>
+
+          <!-- Phase 1 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-normal">1</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-normal">0&ndash;3 Min.</div>
+                <div class="phase-name">Spielregeln kl&auml;ren</div>
+              </div>
+              <div class="phase-say">&ldquo;Wir haben 45 Minuten. Ich zeige Ihnen das Objekt und die Zahlen &mdash; am Ende entscheiden wir gemeinsam, ob das f&uuml;r Sie passt. Einverstanden?&rdquo;</div>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-normal">2</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-normal">3&ndash;10 Min.</div>
+                <div class="phase-name">3 Fragen &mdash; Bed&uuml;rfnisse verstehen</div>
+              </div>
+              <div class="phase-say">&ldquo;Bevor ich Ihnen das Projekt zeige: Was ist f&uuml;r Sie das Wichtigste &mdash; Lage, monatliche Belastung oder Renditeh&ouml;he?&rdquo;</div>
+              <div class="phase-tip"><span class="phase-tip-arrow">&rarr;</span> Antworten sichtbar mitschreiben &mdash; zeigt Ernsthaftigkeit.</div>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-normal">3</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-normal">10&ndash;20 Min.</div>
+                <div class="phase-name">Lage zeigen</div>
+              </div>
+              <div class="phase-say">&ldquo;Ich teile jetzt meinen Bildschirm &mdash; Sie sehen die Lage direkt auf der Karte. Von hier sind es 6 Gehminuten zur S-Bahn, Supermarkt und Schule direkt um die Ecke.&rdquo;</div>
+            </div>
+          </div>
+
+          <!-- Phase 4 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-normal">4</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-normal">20&ndash;30 Min.</div>
+                <div class="phase-name">Grundriss &ldquo;begehen&rdquo;</div>
+              </div>
+              <div class="phase-say">&ldquo;Hier kommen Sie rein &mdash; links das Bad, geradeaus der Wohnbereich mit S&uuml;dbalkon. Sehen Sie, wie das Licht von vorne reinkommt?&rdquo;</div>
+              <div class="phase-tip"><span class="phase-tip-arrow">&rarr;</span> Mit Mauszeiger durch die R&auml;ume f&uuml;hren &mdash; kein Standbild zeigen.</div>
+            </div>
+          </div>
+
+          <!-- Phase 5 KEY -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-key">5</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-key">30&ndash;40 Min.</div>
+                <div class="phase-name key">&#9733;&nbsp; Zahlen &mdash; live durchrechnen</div>
+              </div>
+              <div class="phase-say say-key">&ldquo;Sie haben gesagt, Sie haben ca. 80.000&nbsp;&euro; Eigenkapital &mdash; dann rechnen wir das jetzt zusammen durch. Was bleibt f&uuml;r Sie monatlich &uuml;brig?&rdquo;</div>
+              <div class="phase-tip"><span class="phase-tip-arrow">&rarr;</span> Nie fertige Zahlen zeigen &mdash; immer live mit dem Interessenten rechnen. Das erzeugt Beteiligung.</div>
+            </div>
+          </div>
+
+          <!-- Phase 6 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-normal">6</div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-normal">40&ndash;50 Min.</div>
+                <div class="phase-name">Offene Fragen kl&auml;ren</div>
+              </div>
+              <div class="phase-say">&ldquo;Was ist f&uuml;r Sie noch offen?&rdquo; &mdash; <span class="emphasis">Dann Schweigen. Nichts sagen.</span> Wer zuerst redet, verliert den Abschluss.</div>
+            </div>
+          </div>
+
+          <!-- Phase 7 -->
+          <div class="phase-row">
+            <div class="phase-left">
+              <div class="phase-num pn-closing">7</div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-top">
+                <div class="phase-time pt-closing">50&ndash;60 Min.</div>
+                <div class="phase-name closing">Reservierung vorschlagen</div>
+              </div>
+              <div class="phase-say say-closing">&ldquo;Wenn Sie diese Wohnung m&ouml;chten &mdash; wir sichern sie jetzt 14 Tage f&uuml;r Sie. Kostenlos, aber in dieser Zeit f&uuml;r andere geblockt. Machen wir das so?&rdquo;</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+
+          <!-- Vor jedem Call -->
+          <div class="r-card standard">
+            <div class="r-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Vor jedem Call abhaken
+            </div>
+            <div class="r-sub">Schlechter Ton oder Bild kostet Vertrauen in Sekunde 1.</div>
+            <div class="r-divider"></div>
+            <div class="r-item"><div class="r-check"></div><span><strong>Mikrofon:</strong> externes Mikro, kein eingebautes</span></div>
+            <div class="r-item"><div class="r-check"></div><span><strong>Licht:</strong> von vorne (Fenster o. Ringlicht)</span></div>
+            <div class="r-item"><div class="r-check"></div><span><strong>Kamera:</strong> auf Augenh&ouml;he, 1080p</span></div>
+            <div class="r-item"><div class="r-check"></div><span><strong>Hintergrund:</strong> aufger&auml;umt, kein virtueller</span></div>
+            <div class="r-item"><div class="r-check"></div><span><strong>5-Min-Test:</strong> mit Kollegen testen</span></div>
+          </div>
+
+          <!-- Bereit haben -->
+          <div class="r-card blue">
+            <div class="r-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Im Call ge&ouml;ffnet haben
+            </div>
+            <div class="r-item"><div class="r-dot"></div>Grundriss als Bild (kein PDF)</div>
+            <div class="r-item"><div class="r-dot"></div>Google Maps &amp; Luftbild</div>
+            <div class="r-item"><div class="r-dot"></div>Renditerechner (live bef&uuml;llbar)</div>
+            <div class="r-item"><div class="r-dot"></div>Aktuelle KfW-F&ouml;rderwerte</div>
+            <div class="r-item"><div class="r-dot"></div>Reservierungsformular</div>
+          </div>
+
+          <!-- Key Reminder -->
+          <div class="r-card standard" style="background:rgba(255,196,0,0.06);border-color:rgba(255,196,0,0.2);">
+            <div class="r-title" style="color:#ffc400;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffc400" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Der wichtigste Grundsatz
+            </div>
+            <div style="font-size:clamp(10px,0.82vw,13px);color:rgba(255,255,255,0.72);line-height:1.45;">
+              <strong style="color:#ffffff;">Der Kapitalanleger sieht die Wohnung nie.</strong> Dieses Meeting ist sein einziger Eindruck &mdash; von dir, vom Projekt, vom Bautr&auml;ger.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="rule-text">
+          <strong>Phase 5 ist der Kern &mdash; alles davor baut Vertrauen auf, alles danach folgt aus den Zahlen.</strong>
+          Wer live rechnet, erzeugt Beteiligung. Wer fertige Folien zeigt, erzeugt Zuschauer &mdash;
+          <em>und Zuschauer kaufen nicht.</em>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
