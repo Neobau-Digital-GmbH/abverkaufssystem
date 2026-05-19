@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 05.1 – Online-Meeting Hands-on</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg { position:absolute; inset:0; background: radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%), radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%); pointer-events:none; }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+  .columns { flex:0 0 auto; display:flex; gap:1.8vw; align-items:flex-start; }
+
+  /* LEFT */
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; gap:0.75vh; }
+  .col-label { font-size:clamp(10px,0.82vw,13px); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:0.3vh; }
+
+  .prep-row { display:flex; gap:0.9vw; align-items:stretch; }
+  .prep-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:clamp(24px,2.2vw,32px); }
+  .prep-icon-wrap { width:clamp(24px,2.2vw,32px); height:clamp(24px,2.2vw,32px); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; z-index:1; }
+  .prep-icon-wrap svg { width:clamp(12px,1.1vw,16px); height:clamp(12px,1.1vw,16px); }
+  .p-blue  { background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3); }
+  .p-green { background:rgba(52,199,89,0.15);  border:1px solid rgba(52,199,89,0.3); }
+  .p-gold  { background:rgba(255,196,0,0.15);  border:1px solid rgba(255,196,0,0.3); }
+  .prep-connector { width:1px; flex:1; background:rgba(255,255,255,0.07); margin:2px 0; }
+  .prep-content { flex:1; padding-bottom:0.85vh; display:flex; flex-direction:column; gap:0.3vh; }
+  .prep-row:last-child .prep-content { padding-bottom:0; }
+  .prep-when { font-size:clamp(8px,0.68vw,11px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:1px 7px; border-radius:6px; width:fit-content; margin-bottom:0.15vh; }
+  .pw-blue  { background:rgba(91,143,241,0.1); color:#7aaaf5; border:1px solid rgba(91,143,241,0.18); }
+  .pw-green { background:rgba(52,199,89,0.1);  color:#34c759; border:1px solid rgba(52,199,89,0.18); }
+  .pw-gold  { background:rgba(255,196,0,0.1);  color:#ffc400; border:1px solid rgba(255,196,0,0.2); }
+  .prep-title { font-size:clamp(12px,1vw,15px); font-weight:700; color:#ffffff; line-height:1.2; }
+  .prep-items { display:flex; flex-direction:column; gap:0.25vh; }
+  .prep-item { display:flex; align-items:flex-start; gap:0.4vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.65); line-height:1.35; }
+  .prep-dot { width:4px; height:4px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .p-blue  .prep-dot { background:#5b8ff1; }
+  .p-green .prep-dot { background:#34c759; }
+  .p-gold  .prep-dot { background:#ffc400; }
+
+  .phase5-box { border-radius:11px; background:linear-gradient(145deg,rgba(255,196,0,0.09) 0%,rgba(255,196,0,0.02) 100%); border:1px solid rgba(255,196,0,0.28); padding:clamp(10px,1.1vh,15px) clamp(12px,1.2vw,16px); display:flex; flex-direction:column; gap:0.6vh; position:relative; overflow:hidden; }
+  .phase5-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,196,0,0.45),transparent); }
+  .p5-header { display:flex; align-items:center; gap:0.7vw; }
+  .p5-badge { background:rgba(255,196,0,0.15); border:1px solid rgba(255,196,0,0.3); color:#ffc400; padding:2px 8px; border-radius:6px; font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; }
+  .p5-title { font-size:clamp(12px,1vw,15px); font-weight:700; color:#ffc400; }
+  .p5-cols { display:flex; gap:1vw; }
+  .p5-col { flex:1; display:flex; flex-direction:column; gap:0.35vh; }
+  .p5-col-label { font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+  .p5-col-label.en { color:rgba(52,199,89,0.8); }
+  .p5-col-label.ka { color:rgba(91,143,241,0.8); }
+  .p5-item { font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.72); line-height:1.35; display:flex; gap:0.4vw; align-items:flex-start; }
+  .p5-dot-en { width:4px; height:4px; border-radius:50%; background:#34c759; flex-shrink:0; margin-top:5px; }
+  .p5-dot-ka { width:4px; height:4px; border-radius:50%; background:#5b8ff1; flex-shrink:0; margin-top:5px; }
+  .p5-say { margin-top:0.3vh; font-size:clamp(10px,0.82vw,13px); font-style:italic; color:rgba(255,255,255,0.82); border-left:2px solid rgba(255,196,0,0.4); padding-left:0.6vw; line-height:1.35; }
+
+  /* RIGHT */
+  .right { width:29vw; flex-shrink:0; display:flex; flex-direction:column; gap:0.9vh; }
+
+  .upsell-main { border-radius:14px; background:linear-gradient(160deg,#1f2535 0%,#252d40 100%); border:1px solid rgba(91,143,241,0.35); box-shadow:0 0 40px rgba(91,143,241,0.08),inset 0 0 30px rgba(91,143,241,0.04); padding:clamp(13px,1.4vh,19px) clamp(14px,1.4vw,20px); display:flex; flex-direction:column; gap:0.8vh; position:relative; overflow:hidden; }
+  .upsell-main::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.6),transparent); }
+  .upsell-main::after { content:''; position:absolute; top:-60px; right:-30px; width:180px; height:180px; background:radial-gradient(circle,rgba(91,143,241,0.08) 0%,transparent 70%); pointer-events:none; }
+  .upsell-tag { font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#5b8ff1; display:flex; align-items:center; gap:0.4vw; }
+  .upsell-title { font-size:clamp(14px,1.3vw,20px); font-weight:900; color:#ffffff; line-height:1.2; position:relative; z-index:1; }
+  .upsell-title em { font-style:normal; color:#7aaaf5; }
+  .upsell-desc { font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.68); line-height:1.45; position:relative; z-index:1; }
+  .upsell-desc strong { color:#ffffff; font-weight:700; }
+  .upsell-features { display:flex; flex-direction:column; gap:0.4vh; }
+  .upsell-feat { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.75); line-height:1.35; }
+  .upsell-feat-dot { width:5px; height:5px; border-radius:50%; background:#5b8ff1; flex-shrink:0; margin-top:4px; }
+  .upsell-cta { margin-top:0.3vh; border-radius:8px; background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3); padding:clamp(7px,0.8vh,11px) clamp(10px,1vw,14px); font-size:clamp(11px,0.9vw,14px); font-weight:700; color:#ffffff; display:flex; align-items:center; justify-content:space-between; }
+  .upsell-cta em { font-style:normal; color:#5b8ff1; }
+
+  .upsell-sec { border-radius:11px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:clamp(10px,1.1vh,14px) clamp(12px,1.2vw,16px); display:flex; flex-direction:column; gap:0.6vh; position:relative; overflow:hidden; }
+  .upsell-sec::after { content:''; position:absolute; top:0; left:8%; right:8%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); }
+  .sec-tag { font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.38); }
+  .sec-title { font-size:clamp(13px,1.1vw,17px); font-weight:700; color:#ffffff; line-height:1.2; }
+  .sec-desc { font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.58); line-height:1.4; }
+  .sec-desc strong { color:rgba(255,255,255,0.85); }
+  .sec-cta { font-size:clamp(10px,0.82vw,13px); font-weight:700; color:#5b8ff1; display:flex; align-items:center; gap:0.4vw; margin-top:0.2vh; }
+
+  .rule-box { flex-shrink:0; border-radius:12px; background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25); padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px); display:flex; align-items:center; gap:1.5vw; position:relative; overflow:hidden; }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .columns     { animation:fadein 0.6s ease 0.15s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.38s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">05.1 / 09</div>
+    </div>
+    <div class="slide-title">
+      <div class="eyebrow">Online-Meeting &mdash; Hands-on</div>
+      <div class="headline">Was du brauchst. <span class="hl">Wie du vorgehst.</span></div>
+    </div>
+    <div class="body">
+      <div class="columns">
+
+        <!-- LEFT -->
+        <div class="left">
+          <div class="col-label">Vorbereitung &mdash; Schritt f&uuml;r Schritt</div>
+
+          <div class="prep-row">
+            <div class="prep-left">
+              <div class="prep-icon-wrap p-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="prep-connector"></div>
+            </div>
+            <div class="prep-content">
+              <div class="prep-when pw-blue">1&ndash;2 Tage vorher</div>
+              <div class="prep-title">Unterlagen zusammenstellen</div>
+              <div class="prep-items">
+                <div class="prep-item"><div class="prep-dot p-blue" style="background:#5b8ff1;"></div>Grundriss als Bild (nicht PDF), Lageplan, Luftbild</div>
+                <div class="prep-item"><div class="prep-dot p-blue" style="background:#5b8ff1;"></div>Renditerechner auf Interessenten-Daten vorb&uuml;lllen</div>
+                <div class="prep-item"><div class="prep-dot p-blue" style="background:#5b8ff1;"></div>Aktuelle KfW-F&ouml;rderwerte pr&uuml;fen</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prep-row">
+            <div class="prep-left">
+              <div class="prep-icon-wrap p-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div class="prep-connector"></div>
+            </div>
+            <div class="prep-content">
+              <div class="prep-when pw-green">Am Tag davor</div>
+              <div class="prep-title">Technik testen</div>
+              <div class="prep-items">
+                <div class="prep-item"><div class="prep-dot" style="background:#34c759;"></div>5-Minuten-Test mit Kollegen: Ton, Bild, Bildschirmteilen</div>
+                <div class="prep-item"><div class="prep-dot" style="background:#34c759;"></div>Licht von vorne, aufger&auml;umter Hintergrund, Kamera auf Augenh&ouml;he</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prep-row">
+            <div class="prep-left">
+              <div class="prep-icon-wrap p-gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffc400" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+            <div class="prep-content">
+              <div class="prep-when pw-gold">5 Minuten vorher</div>
+              <div class="prep-title">Alles ge&ouml;ffnet &amp; bereit</div>
+              <div class="prep-items">
+                <div class="prep-item"><div class="prep-dot" style="background:#ffc400;"></div>Renditerechner offen, Grundriss offen, Google Maps offen</div>
+                <div class="prep-item"><div class="prep-dot" style="background:#ffc400;"></div>Reservierungsformular parat</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 5 DEEP DIVE -->
+          <div class="phase5-box">
+            <div class="p5-header">
+              <div class="p5-badge">&#9733; Phase 5 &mdash; Kernphase</div>
+              <div class="p5-title">Zahlen live durchrechnen &mdash; so geht&apos;s</div>
+            </div>
+            <div class="p5-cols">
+              <div class="p5-col">
+                <div class="p5-col-label en">Eigennutzer</div>
+                <div class="p5-item"><div class="p5-dot-en"></div>Aktuelle Miete vs. monatliche Rate</div>
+                <div class="p5-item"><div class="p5-dot-en"></div>Eigenkapitalaufbau durch Tilgung</div>
+                <div class="p5-item"><div class="p5-dot-en"></div>KfW-F&ouml;rderung einrechnen</div>
+              </div>
+              <div class="p5-col">
+                <div class="p5-col-label ka">Kapitalanleger</div>
+                <div class="p5-item"><div class="p5-dot-ka"></div>Mieteinnahmen vs. monatliche Rate</div>
+                <div class="p5-item"><div class="p5-dot-ka"></div>Steuerersparnis durch Abschreibung</div>
+                <div class="p5-item"><div class="p5-dot-ka"></div>Cashflow nach Steuern zeigen</div>
+              </div>
+            </div>
+            <div class="p5-say">&ldquo;Sie haben 80.000&nbsp;&euro; Eigenkapital? Gut &mdash; dann rechnen wir das jetzt gemeinsam durch.&rdquo;</div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+
+          <div class="upsell-main">
+            <div class="upsell-tag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Empfehlung von neubau.marketing
+            </div>
+            <div class="upsell-title">Projekt-Pitch-Deck<br><em>inkl. Renditerechner</em></div>
+            <div class="upsell-desc">
+              Noch kein professionelles Pitch-Deck f&uuml;r euer Projekt? <strong>Wir erstellen es &mdash; inkl. live bef&uuml;llbarem Renditerechner.</strong> Einheitliche Basis f&uuml;r jedes Gespr&auml;ch, jedes Mal.
+            </div>
+            <div class="upsell-features">
+              <div class="upsell-feat"><div class="upsell-feat-dot"></div>Projektspezifisch gestaltet &mdash; kein Template</div>
+              <div class="upsell-feat"><div class="upsell-feat-dot"></div>Renditerechner live bef&uuml;llbar (Eigenkapital, Rate, Cashflow)</div>
+              <div class="upsell-feat"><div class="upsell-feat-dot"></div>Version f&uuml;r Eigennutzer &amp; Kapitalanleger</div>
+              <div class="upsell-feat"><div class="upsell-feat-dot"></div>Fertig in wenigen Tagen</div>
+            </div>
+            <div class="upsell-cta">
+              <span>Interesse? <em>&rarr; Einfach Olli fragen</em></span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <div class="upsell-sec">
+            <div class="sec-tag">Optionales Angebot</div>
+            <div class="sec-title">Vertriebs-Workshop + Call-Analyse</div>
+            <div class="sec-desc">
+              <strong>Online-Meetings laufen, aber kein Abschluss?</strong> Wir analysieren eure echten Gespr&auml;che und coachen euer Team direkt &mdash; optional auch vor Ort.
+            </div>
+            <div class="sec-cta">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              Mehr dazu auf Slide 08 &mdash; oder direkt Olli fragen
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="rule-text">
+          <strong>Wer mit denselben Unterlagen in jedes Gespr&auml;ch geht, wirkt wie jeder andere.</strong>
+          Ein professionell aufbereitetes Pitch-Deck mit live bef&uuml;llbarem Renditerechner <em>macht den Unterschied sichtbar</em> &mdash; in den ersten 5 Minuten.
+        </div>
+      </div>
+
+    </div>
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
