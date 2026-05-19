@@ -12,12 +12,11 @@
   .bg {
     position:absolute; inset:0;
     background:
-      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
-      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.07) 0%, transparent 60%);
     pointer-events:none;
   }
-  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
   .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
   .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
   .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
@@ -29,102 +28,137 @@
   .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
   .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
 
-  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.2vh; min-height:0; justify-content:center; }
 
-  /* GRID: 3 Spalten */
-  .grid { flex:0 0 auto; display:flex; gap:1.2vw; }
-  .col  { flex:1; min-width:0; display:flex; flex-direction:column; gap:1.1vh; }
+  /* ══ BENTO GRID ══ */
+  .bento {
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    grid-template-rows:auto auto;
+    gap:clamp(8px,0.9vw,14px);
+  }
 
-  /* EINWAND-KARTE */
-  .e-card {
-    border-radius:12px;
-    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
-    padding:clamp(11px,1.2vh,16px) clamp(11px,1.1vw,16px);
-    display:flex; flex-direction:column; gap:0.6vh;
+  /* Grid Placement */
+  .b-zinsen   { grid-column:1/5; grid-row:1; }
+  .b-warte    { grid-column:5/7; grid-row:1; }
+  .b-teuer    { grid-column:1/3; grid-row:2; }
+  .b-projekte { grid-column:3/5; grid-row:2; }
+  .b-partner  { grid-column:5/7; grid-row:2; }
+
+  /* BASE CARD */
+  .bcard {
+    border-radius:clamp(14px,1.4vw,20px);
+    padding:clamp(14px,1.5vh,22px) clamp(14px,1.5vw,22px);
+    display:flex; flex-direction:column; gap:0.8vh;
+    position:relative; overflow:hidden;
+    background:rgba(255,255,255,0.034);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(2px);
+    transition:border-color 0.2s;
+  }
+  .bcard::before { content:''; position:absolute; top:0; left:10%; right:10%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); pointer-events:none; }
+
+  /* Hero card (Zinsen) — subtle blue tint */
+  .b-zinsen.bcard {
+    background:linear-gradient(145deg,rgba(91,143,241,0.09) 0%,rgba(91,143,241,0.02) 100%);
+    border-color:rgba(91,143,241,0.2);
+  }
+  .b-zinsen.bcard::before { background:linear-gradient(90deg,transparent,rgba(91,143,241,0.3),transparent); }
+
+  /* TYPOGRAPHY SYSTEM */
+  /* Chip / label */
+  .chip {
+    display:inline-flex; align-items:center; gap:0.4vw;
+    font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    padding:2px 8px; border-radius:999px; width:fit-content; flex-shrink:0;
+  }
+  .chip-all  { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.1); }
+  .chip-en   { background:rgba(52,199,89,0.12);  color:#34c759; border:1px solid rgba(52,199,89,0.2); }
+  .chip-ka   { background:rgba(91,143,241,0.12); color:#7aaaf5; border:1px solid rgba(91,143,241,0.2); }
+  .chip-hero { background:rgba(91,143,241,0.15); color:#7aaaf5; border:1px solid rgba(91,143,241,0.25); }
+
+  /* What they say */
+  .objection {
+    font-size:clamp(11px,0.95vw,15px); font-style:italic;
+    color:rgba(255,255,255,0.45); line-height:1.35;
+  }
+
+  /* Divider */
+  .bdiv { height:1px; background:rgba(255,255,255,0.06); flex-shrink:0; margin:0.2vh 0; }
+  .b-zinsen .bdiv { background:rgba(91,143,241,0.15); }
+
+  /* What you say — main content */
+  .response {
+    font-size:clamp(11px,0.92vw,14px); color:rgba(255,255,255,0.88); line-height:1.5; font-style:italic;
+    flex:1;
+  }
+  .response strong { font-style:normal; color:#ffffff; font-weight:700; }
+
+  /* Behind-label */
+  .behind {
+    font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+    color:rgba(255,165,0,0.55); display:flex; align-items:center; gap:0.4vw; flex-shrink:0;
+  }
+  .behind::before { content:''; width:10px; height:1px; background:rgba(255,165,0,0.3); flex-shrink:0; }
+
+  /* Hero card two-column split (EN vs KA) */
+  .zinsen-header { display:flex; flex-direction:column; gap:0.5vh; }
+  .zinsen-chips  { display:flex; gap:0.5vw; flex-wrap:wrap; }
+  .zinsen-split  { display:flex; gap:1.5vw; flex:1; }
+  .zinsen-col    { flex:1; display:flex; flex-direction:column; gap:0.5vh; padding:clamp(10px,1vh,14px) clamp(12px,1.1vw,16px); border-radius:12px; }
+  .zcol-en { background:rgba(52,199,89,0.07); border:1px solid rgba(52,199,89,0.14); }
+  .zcol-ka { background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.16); }
+  .zcol-label { font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.2vh; }
+  .zcol-en .zcol-label { color:rgba(52,199,89,0.75); }
+  .zcol-ka .zcol-label { color:rgba(91,143,241,0.75); }
+  .zcol-text { font-size:clamp(10px,0.85vw,13px); color:rgba(255,255,255,0.82); line-height:1.45; font-style:italic; }
+
+  /* ══ FEATURED: Ich denke noch nach ══ */
+  .b-denkt {
+    border-radius:clamp(14px,1.4vw,20px);
+    padding:clamp(14px,1.5vh,20px) clamp(14px,1.5vw,22px);
+    background:linear-gradient(135deg,rgba(255,196,0,0.09) 0%,rgba(255,196,0,0.02) 100%);
+    border:1px solid rgba(255,196,0,0.22);
+    display:flex; align-items:flex-start; gap:2vw;
     position:relative; overflow:hidden; flex-shrink:0;
   }
-  .e-card::after { content:''; position:absolute; top:0; left:8%; right:8%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.12),transparent); }
+  .b-denkt::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,196,0,0.4),transparent); pointer-events:none; }
 
-  /* Was sie sagen */
-  .e-objection {
-    font-size:clamp(11px,0.95vw,15px); font-style:italic;
-    color:rgba(255,255,255,0.55); line-height:1.35;
-    display:flex; gap:0.4vw; align-items:flex-start;
-  }
-  .e-quote-icon { color:rgba(255,255,255,0.25); font-style:normal; flex-shrink:0; font-size:1.2em; line-height:1; margin-top:-1px; }
+  .denkt-left { flex-shrink:0; display:flex; flex-direction:column; gap:0.6vh; min-width:clamp(120px,12vw,180px); }
+  .denkt-badge { font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; background:rgba(255,196,0,0.15); border:1px solid rgba(255,196,0,0.28); color:#ffc400; padding:2px 8px; border-radius:999px; width:fit-content; }
+  .denkt-obj { font-size:clamp(12px,1vw,16px); font-style:italic; color:rgba(255,255,255,0.45); line-height:1.35; }
+  .denkt-sub { font-size:clamp(9px,0.72vw,11px); color:rgba(255,165,0,0.5); font-weight:700; letter-spacing:0.07em; text-transform:uppercase; margin-top:0.2vh; }
 
-  /* Was wirklich dahintersteckt */
-  .e-behind {
-    font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.08em;
-    text-transform:uppercase; color:rgba(255,165,0,0.7); display:flex; align-items:center; gap:0.4vw;
-  }
-  .e-behind::before { content:''; width:12px; height:1px; background:rgba(255,165,0,0.35); flex-shrink:0; }
+  .denkt-vdiv { width:1px; align-self:stretch; background:rgba(255,196,0,0.2); flex-shrink:0; }
 
-  /* Was du sagst */
-  .e-response {
-    border-radius:8px;
-    background:rgba(91,143,241,0.09); border:1px solid rgba(91,143,241,0.2);
-    padding:clamp(7px,0.8vh,11px) clamp(9px,0.9vw,13px);
-    font-size:clamp(10px,0.85vw,14px); font-style:italic;
-    color:#ffffff; line-height:1.45;
-  }
-  .e-response .ph { color:#5b8ff1; font-style:normal; font-weight:700; }
-  .e-response .em-green { color:#34c759; font-style:normal; font-weight:700; }
+  .denkt-right { flex:1; display:flex; flex-direction:column; gap:0.5vh; justify-content:center; }
+  .denkt-response { font-size:clamp(11px,0.92vw,14px); color:#ffffff; line-height:1.5; font-style:italic; }
+  .denkt-hint { font-size:clamp(9px,0.75vw,12px); color:rgba(255,255,255,0.4); line-height:1.35; margin-top:0.1vh; }
 
-  /* EN/KA Tag */
-  .e-tag-row { display:flex; gap:0.5vw; flex-wrap:wrap; }
-  .e-tag {
-    font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.07em;
-    text-transform:uppercase; padding:1px 6px; border-radius:5px;
-  }
-  .tag-en  { background:rgba(52,199,89,0.12);  color:#34c759; border:1px solid rgba(52,199,89,0.22); }
-  .tag-ka  { background:rgba(91,143,241,0.12); color:#7aaaf5; border:1px solid rgba(91,143,241,0.22); }
-  .tag-all { background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.12); }
-
-  /* SPEZIAL: "Ich denke noch nach" unten quer */
-  .special-card {
-    flex-shrink:0; border-radius:12px;
-    background:linear-gradient(145deg,rgba(255,196,0,0.09) 0%,rgba(255,196,0,0.02) 100%);
-    border:1px solid rgba(255,196,0,0.25);
-    padding:clamp(10px,1.1vh,14px) clamp(14px,1.4vw,20px);
-    display:flex; align-items:flex-start; gap:2vw;
-    position:relative; overflow:hidden;
-  }
-  .special-card::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,196,0,0.4),transparent); }
-  .sc-label { flex-shrink:0; display:flex; flex-direction:column; gap:0.3vh; min-width:8vw; }
-  .sc-badge { font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; background:rgba(255,196,0,0.15); border:1px solid rgba(255,196,0,0.3); color:#ffc400; padding:2px 8px; border-radius:6px; width:fit-content; }
-  .sc-obj { font-size:clamp(11px,0.95vw,15px); font-style:italic; color:rgba(255,255,255,0.55); line-height:1.3; margin-top:0.3vh; }
-  .sc-divider { width:1px; align-self:stretch; background:rgba(255,196,0,0.2); flex-shrink:0; }
-  .sc-content { flex:1; display:flex; flex-direction:column; gap:0.4vh; }
-  .sc-behind { font-size:clamp(9px,0.75vw,12px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,165,0,0.65); }
-  .sc-response {
-    font-size:clamp(10px,0.85vw,14px); font-style:italic; color:#ffffff; line-height:1.45;
-    border-left:2px solid rgba(255,196,0,0.4); padding-left:0.6vw;
-  }
-
-  /* RULE BOX */
+  /* ══ RULE BOX ══ */
   .rule-box {
-    flex-shrink:0; border-radius:12px;
-    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25);
+    flex-shrink:0; border-radius:clamp(12px,1.2vw,18px);
+    background:rgba(91,143,241,0.07); border:1px solid rgba(91,143,241,0.2);
     padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
     display:flex; align-items:center; gap:1.5vw;
     position:relative; overflow:hidden;
   }
-  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
-  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
-  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.35),transparent); }
+  .rule-icon svg { width:clamp(16px,1.5vw,20px); height:clamp(16px,1.5vw,20px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.88vw,14px); color:rgba(255,255,255,0.78); line-height:1.5; }
   .rule-text strong { color:#ffffff; font-weight:900; }
   .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
 
   .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
-  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
-  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.12); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.65); letter-spacing:0.08em; padding-top:1.5vh; }
 
-  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
-  .slide-title   { animation:fadein 0.6s ease 0.05s both; }
-  .grid          { animation:fadein 0.6s ease 0.15s both; }
-  .special-card  { animation:fadein 0.6s ease 0.28s both; }
-  .rule-box      { animation:fadein 0.6s ease 0.38s both; }
+  @keyframes fadein { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.55s ease 0.04s both; }
+  .bento       { animation:fadein 0.55s ease 0.14s both; }
+  .b-denkt     { animation:fadein 0.55s ease 0.24s both; }
+  .rule-box    { animation:fadein 0.55s ease 0.34s both; }
 </style>
 </head>
 <body>
@@ -144,90 +178,82 @@
 
     <div class="body">
 
-      <div class="grid">
+      <!-- BENTO GRID -->
+      <div class="bento">
 
-        <!-- SPALTE 1 -->
-        <div class="col">
-
-          <!-- Einwand 1: Zinsen -->
-          <div class="e-card">
-            <div class="e-tag-row">
-              <div class="e-tag tag-en">Eigennutzer</div>
-              <div class="e-tag tag-ka">Kapitalanleger</div>
+        <!-- HERO: Zinsen zu hoch (4/6) -->
+        <div class="bcard b-zinsen">
+          <div class="zinsen-header">
+            <div class="zinsen-chips">
+              <div class="chip chip-hero">H&auml;ufigster Einwand</div>
+              <div class="chip chip-en">Eigennutzer</div>
+              <div class="chip chip-ka">Kapitalanleger</div>
             </div>
-            <div class="e-objection"><span class="e-quote-icon">&ldquo;</span>Die Zinsen sind noch zu hoch.</div>
-            <div class="e-behind">Dahinter: Angst vor monatlicher Belastung</div>
-            <div class="e-response">
-              <strong style="font-style:normal;color:#34c759;">Eigennutzer:</strong> &ldquo;Die Zinsen sind h&ouml;her als 2021 &mdash; die Kaufpreise daf&uuml;r 10&ndash;15&nbsp;% niedriger. Bei 400.000&nbsp;&euro; sparen Sie 40.000&nbsp;&euro; Kaufpreis. Das schl&auml;gt jeden Zinsvorteil.&rdquo;<br>
-              <span style="display:block;margin-top:0.4vh;"><strong style="font-style:normal;color:#7aaaf5;">Kapitalanleger:</strong> &ldquo;Die Zinsen sind absetzbar. Was bei 1&nbsp;% kein Steuerthema war, ist heute Ihr gr&ouml;&szlig;ter Hebel &mdash; der Mieter zahlt die Zinsen f&uuml;r Sie.&rdquo;</span>
+            <div class="objection">&ldquo;Die Zinsen sind noch zu hoch.&rdquo;</div>
+            <div class="behind">Dahinter: Angst vor monatlicher Belastung</div>
+          </div>
+          <div class="bdiv"></div>
+          <div class="zinsen-split">
+            <div class="zinsen-col zcol-en">
+              <div class="zcol-label">Eigennutzer &mdash; sag das</div>
+              <div class="zcol-text">&ldquo;Die Zinsen sind h&ouml;her als 2021 &mdash; die Kaufpreise daf&uuml;r 10&ndash;15&nbsp;% niedriger. Bei 400.000&nbsp;&euro; sparen Sie 40.000&nbsp;&euro; Kaufpreis. Das schl&auml;gt jeden Zinsvorteil.&rdquo;</div>
+            </div>
+            <div class="zinsen-col zcol-ka">
+              <div class="zcol-label">Kapitalanleger &mdash; sag das</div>
+              <div class="zcol-text">&ldquo;Die Zinsen sind steuerlich absetzbar. Was bei 1&nbsp;% kein Thema war, ist heute Ihr gr&ouml;&szlig;ter Hebel &mdash; der Mieter finanziert die Zinsen f&uuml;r Sie mit.&rdquo;</div>
             </div>
           </div>
-
-          <!-- Einwand 2: Ich warte noch ab -->
-          <div class="e-card">
-            <div class="e-tag-row"><div class="e-tag tag-all">Beide Typen</div></div>
-            <div class="e-objection"><span class="e-quote-icon">&ldquo;</span>Ich warte noch ab bis die Preise fallen.</div>
-            <div class="e-behind">Dahinter: Hoffnung auf besseren Zeitpunkt</div>
-            <div class="e-response">&ldquo;Diese Hoffnung haben viele seit 2022. Was ist passiert? Die Preise steigen seit Ende 2024 wieder &mdash; und 1,4 Millionen Wohnungen fehlen aktuell in Deutschland. Wer wartet, kauft sp&auml;ter teurer.&rdquo;</div>
-          </div>
-
         </div>
 
-        <!-- SPALTE 2 -->
-        <div class="col">
-
-          <!-- Einwand 3: Zu teuer -->
-          <div class="e-card">
-            <div class="e-tag-row"><div class="e-tag tag-all">Beide Typen</div></div>
-            <div class="e-objection"><span class="e-quote-icon">&ldquo;</span>Das ist mir zu teuer.</div>
-            <div class="e-behind">Dahinter: Preis nicht mit Wert verbunden</div>
-            <div class="e-response">&ldquo;Zu teuer im Vergleich wozu? Bestandswohnungen haben Sanierungsstau von oft 30.000&ndash;80.000&nbsp;&euro;. Neubau hat 50 Jahre Restnutzungsdauer, KfW-F&ouml;rderung und steuerliche Abschreibung. Auf den Quadratmeter &uuml;ber 30 Jahre gerechnet ist Neubau meist die g&uuml;nstigere Variante.&rdquo;</div>
-          </div>
-
-          <!-- Einwand 4: Andere Projekte -->
-          <div class="e-card">
-            <div class="e-tag-row"><div class="e-tag tag-all">Beide Typen</div></div>
-            <div class="e-objection"><span class="e-quote-icon">&ldquo;</span>Ich schaue mir noch andere Projekte an.</div>
-            <div class="e-behind">Dahinter: Oft eine H&ouml;flichkeitsfloskel</div>
-            <div class="e-response">&ldquo;Sehr vern&uuml;nftig. Drei kurze Fragen: Welche Projekte sind konkret in der Wahl? Was ist Ihr wichtigstes Kriterium &mdash; Lage, Preis oder Rendite? Und bis wann m&ouml;chten Sie entschieden haben?&rdquo;</div>
-            <div style="font-size:clamp(9px,0.72vw,11px);color:rgba(255,255,255,0.38);line-height:1.3;">&rarr; Meistens gibt es keinen echten Wettbewerber &mdash; die 3 Fragen zeigen das.</div>
-          </div>
-
+        <!-- Warte noch ab (2/6) -->
+        <div class="bcard b-warte">
+          <div class="chip chip-all">Beide Typen</div>
+          <div class="objection">&ldquo;Ich warte noch ab bis die Preise fallen.&rdquo;</div>
+          <div class="behind">Dahinter: Hoffnung auf besseren Zeitpunkt</div>
+          <div class="bdiv"></div>
+          <div class="response">&ldquo;Diese Hoffnung haben viele seit 2022. Die Preise steigen seit Ende 2024 wieder &mdash; und 1,4 Millionen Wohnungen fehlen heute. Wer wartet, kauft sp&auml;ter teurer.&rdquo;</div>
         </div>
 
-        <!-- SPALTE 3 -->
-        <div class="col">
-
-          <!-- Einwand 5: Partner -->
-          <div class="e-card">
-            <div class="e-tag-row"><div class="e-tag tag-all">Beide Typen</div></div>
-            <div class="e-objection"><span class="e-quote-icon">&ldquo;</span>Ich muss erst mit meiner Frau / meinem Mann sprechen.</div>
-            <div class="e-behind">Dahinter: Echter Einwand &mdash; nie dagegenargumentieren</div>
-            <div class="e-response">&ldquo;Absolut richtig &mdash; das ist eine gemeinsame Entscheidung. Darf ich einen Vorschlag machen? Ich schicke Ihnen heute Abend alle Unterlagen &mdash; und biete einen kurzen 20-Minuten-Call mit Ihnen beiden an. Wann passt es Ihrer Frau am besten &mdash; eher abends oder am Wochenende?&rdquo;</div>
-            <div style="font-size:clamp(9px,0.72vw,11px);color:rgba(255,255,255,0.38);line-height:1.3;">&rarr; Ziel: beide Entscheider in einen gemeinsamen Call bringen.</div>
-          </div>
-
-          <!-- Markt-Argument Box -->
-          <div class="e-card" style="background:rgba(52,199,89,0.06);border-color:rgba(52,199,89,0.18);">
-            <div style="font-size:clamp(9px,0.72vw,11px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(52,199,89,0.7);">&#9733;&nbsp; Universalargument 2026</div>
-            <div style="font-size:clamp(11px,0.9vw,14px);font-weight:700;color:#ffffff;line-height:1.4;">&ldquo;Zinsen, Preise, Verf&uuml;gbarkeit &mdash; alle drei entwickeln sich in eine Richtung. Wer heute nicht kauft, kauft morgen teurer.&rdquo;</div>
-            <div style="font-size:clamp(9px,0.75vw,12px);color:rgba(255,255,255,0.45);line-height:1.35;">Passt auf fast jeden Einwand &mdash; und ist mit echten Zahlen belegbar.</div>
-          </div>
-
+        <!-- Zu teuer (2/6) -->
+        <div class="bcard b-teuer">
+          <div class="chip chip-all">Beide Typen</div>
+          <div class="objection">&ldquo;Das ist mir zu teuer.&rdquo;</div>
+          <div class="behind">Dahinter: Preis nicht mit Wert verbunden</div>
+          <div class="bdiv"></div>
+          <div class="response">&ldquo;Im Vergleich wozu? Bestand hat Sanierungsstau von 30.000&ndash;80.000&nbsp;&euro;. Neubau: 50 Jahre Restlaufzeit, KfW-F&ouml;rderung, steuerliche Abschreibung. &Uuml;ber 30 Jahre meist g&uuml;nstiger.&rdquo;</div>
         </div>
 
-      </div>
-
-      <!-- SPEZIAL: Ich denke noch nach -->
-      <div class="special-card">
-        <div class="sc-label">
-          <div class="sc-badge">H&auml;ufigster Einwand</div>
-          <div class="sc-obj">&ldquo;Ich denke noch mal dar&uuml;ber nach.&rdquo;</div>
+        <!-- Andere Projekte (2/6) -->
+        <div class="bcard b-projekte">
+          <div class="chip chip-all">Beide Typen</div>
+          <div class="objection">&ldquo;Ich schaue mir noch andere Projekte an.&rdquo;</div>
+          <div class="behind">Dahinter: Oft eine H&ouml;flichkeitsfloskel</div>
+          <div class="bdiv"></div>
+          <div class="response">&ldquo;Sehr vern&uuml;nftig. Welche Projekte konkret? Was ist Ihr wichtigstes Kriterium &mdash; Lage, Preis oder Rendite? Und bis wann m&ouml;chten Sie entschieden haben?&rdquo;</div>
         </div>
-        <div class="sc-divider"></div>
-        <div class="sc-content">
-          <div class="sc-behind">Dahinter: Entweder kein echtes Interesse, offene Frage oder Entscheidungsangst &mdash; du wei&szlig;t es nicht</div>
-          <div class="sc-response">&ldquo;Ich verstehe das. Wenn ich &lsquo;Ich denke noch nach&rsquo; sage, steckt dahinter meistens eines von drei Dingen: Ich will das gar nicht. Ich m&ouml;chte erst mit jemandem sprechen. Oder mir fehlt noch eine Information. Was ist es bei Ihnen?&rdquo;</div>
+
+        <!-- Partner (2/6) -->
+        <div class="bcard b-partner">
+          <div class="chip chip-all">Beide Typen</div>
+          <div class="objection">&ldquo;Ich muss erst mit meiner Frau sprechen.&rdquo;</div>
+          <div class="behind">Dahinter: Echter Einwand &mdash; nie dagegenargumentieren</div>
+          <div class="bdiv"></div>
+          <div class="response">&ldquo;Absolut richtig &mdash; das ist eine gemeinsame Entscheidung. Ich schicke Ihnen heute Abend alle Unterlagen und biete einen 20-Minuten-Call mit Ihnen beiden an. Wann passt es Ihrer Frau am besten?&rdquo;</div>
+        </div>
+
+      </div><!-- end .bento -->
+
+      <!-- FEATURED: Ich denke noch nach -->
+      <div class="b-denkt">
+        <div class="denkt-left">
+          <div class="denkt-badge">&#9733;&nbsp; Spezialfall</div>
+          <div class="denkt-obj">&ldquo;Ich denke noch mal dar&uuml;ber nach.&rdquo;</div>
+          <div class="denkt-sub">Dahinter: Unbekannt &mdash; deshalb nachfragen</div>
+        </div>
+        <div class="denkt-vdiv"></div>
+        <div class="denkt-right">
+          <div class="denkt-response">&ldquo;Ich verstehe das. Wenn ich &lsquo;Ich denke noch nach&rsquo; sage, steckt dahinter meistens eines von drei Dingen: Ich will das gar nicht. Ich m&ouml;chte erst mit jemandem sprechen. Oder mir fehlt noch eine Information. Was ist es bei Ihnen?&rdquo;</div>
+          <div class="denkt-hint">Diese Frage zwingt zur Konkretheit &mdash; und liefert die echte Ursache. Dann erst l&ouml;sen.</div>
         </div>
       </div>
 
@@ -240,12 +266,11 @@
         </div>
         <div class="rule-text">
           <strong>Ein Einwand ist keine Absage &mdash; er ist eine unbeantwortete Frage.</strong>
-          Wer ihn ignoriert oder direkt widerspricht, verliert. Wer <em>nachfragt was wirklich dahintersteckt</em>,
-          findet die echte Ursache &mdash; und kann sie l&ouml;sen.
+          Wer direkt widerspricht, verliert. Wer <em>nachfragt was wirklich dahintersteckt</em>, findet die echte Ursache &mdash; und kann sie l&ouml;sen.
         </div>
       </div>
 
-    </div>
+    </div><!-- end .body -->
 
     <div class="footer">
       <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
