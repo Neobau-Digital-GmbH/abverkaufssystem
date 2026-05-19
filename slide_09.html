@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 09 – KPIs &amp; Reporting</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+  .columns { flex:0 0 auto; display:flex; gap:2vw; align-items:flex-start; }
+
+  /* ── LEFT: KPI PIPELINE ── */
+  .left { flex:1; min-width:0; display:flex; flex-direction:column; gap:0.6vh; }
+  .col-label { font-size:clamp(10px,0.82vw,13px); font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:0.3vh; }
+
+  .kpi-row {
+    display:flex; align-items:center; gap:0.8vw;
+    border-radius:10px; padding:clamp(8px,0.9vh,12px) clamp(11px,1.1vw,15px);
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+    position:relative; overflow:hidden;
+  }
+  .kpi-row.highlight {
+    background:rgba(91,143,241,0.07); border-color:rgba(91,143,241,0.22);
+  }
+  .kpi-row.highlight::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.35),transparent); }
+  .kpi-row.goal {
+    background:rgba(52,199,89,0.07); border-color:rgba(52,199,89,0.22);
+  }
+  .kpi-row.goal::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(52,199,89,0.35),transparent); }
+
+  .kpi-num {
+    width:clamp(22px,2vw,30px); height:clamp(22px,2vw,30px);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:clamp(9px,0.78vw,12px); font-weight:900; flex-shrink:0;
+    background:rgba(91,143,241,0.12); border:1px solid rgba(91,143,241,0.3); color:#5b8ff1;
+  }
+  .kpi-row.goal .kpi-num { background:rgba(52,199,89,0.15); border-color:rgba(52,199,89,0.4); color:#34c759; }
+
+  .kpi-name { font-size:clamp(12px,1vw,15px); font-weight:700; color:#ffffff; flex-shrink:0; width:clamp(120px,11vw,170px); }
+  .kpi-arrow { color:rgba(91,143,241,0.35); flex-shrink:0; font-size:clamp(10px,0.9vw,14px); }
+
+  .kpi-what { flex:1; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.6); line-height:1.35; }
+  .kpi-what strong { color:rgba(255,255,255,0.88); font-weight:700; }
+
+  .kpi-badge {
+    flex-shrink:0; font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.07em;
+    text-transform:uppercase; padding:2px 7px; border-radius:5px;
+  }
+  .badge-blue  { background:rgba(91,143,241,0.12); color:#7aaaf5; border:1px solid rgba(91,143,241,0.2); }
+  .badge-green { background:rgba(52,199,89,0.12);  color:#34c759; border:1px solid rgba(52,199,89,0.2); }
+  .badge-gold  { background:rgba(255,196,0,0.10);  color:#ffc400; border:1px solid rgba(255,196,0,0.2); }
+
+  /* ── RIGHT ── */
+  .right { width:29vw; flex-shrink:0; display:flex; flex-direction:column; gap:0.85vh; }
+
+  .r-card { border-radius:12px; padding:clamp(10px,1.1vh,15px) clamp(12px,1.2vw,16px); display:flex; flex-direction:column; gap:0.55vh; position:relative; overflow:hidden; }
+  .r-std  { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); }
+  .r-std::after { content:''; position:absolute; top:0; left:8%; right:8%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.09),transparent); }
+  .r-blue { background:rgba(91,143,241,0.07); border:1px solid rgba(91,143,241,0.22); }
+  .r-blue::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .r-gold { background:rgba(255,196,0,0.06); border:1px solid rgba(255,196,0,0.2); }
+
+  .r-title { font-size:clamp(11px,0.9vw,14px); font-weight:700; color:#ffffff; display:flex; align-items:center; gap:0.5vw; margin-bottom:0.2vh; }
+  .r-item { display:flex; align-items:flex-start; gap:0.5vw; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.72); line-height:1.35; }
+  .r-dot-blue { width:4px; height:4px; border-radius:50%; background:#5b8ff1; flex-shrink:0; margin-top:5px; }
+  .r-dot-std  { width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,0.3); flex-shrink:0; margin-top:5px; }
+  .r-item em     { font-style:normal; color:#5b8ff1; font-weight:700; }
+  .r-item strong { color:#ffffff; font-weight:700; }
+
+  /* Diagnose-Items */
+  .diag-item { display:flex; align-items:flex-start; gap:0.6vw; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); padding:clamp(6px,0.7vh,9px) clamp(9px,0.9vw,12px); }
+  .diag-icon { font-size:clamp(11px,0.9vw,14px); flex-shrink:0; margin-top:1px; }
+  .diag-text { flex:1; font-size:clamp(10px,0.8vw,12px); color:rgba(255,255,255,0.68); line-height:1.35; }
+  .diag-text strong { color:rgba(255,255,255,0.9); font-weight:700; }
+  .diag-text em { font-style:normal; color:#5b8ff1; }
+
+  /* RULE BOX */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25);
+    padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .columns     { animation:fadein 0.6s ease 0.15s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.38s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">09 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">KPIs &amp; Reporting</div>
+      <div class="headline">Was du trackst &mdash; <span class="hl">und was die Zahlen bedeuten.</span></div>
+    </div>
+
+    <div class="body">
+      <div class="columns">
+
+        <!-- LEFT: KPI PIPELINE -->
+        <div class="left">
+          <div class="col-label">Diese 6 Zahlen tr&auml;gst du w&ouml;chentlich ins CRM ein</div>
+
+          <div class="kpi-row highlight">
+            <div class="kpi-num">1</div>
+            <div class="kpi-name">Neue Anfragen</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele Anfragen sind diese Woche eingegangen? <strong>Quelle: CRM &mdash; nicht Meta.</strong></div>
+            <div class="kpi-badge badge-blue">CRM</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-num">2</div>
+            <div class="kpi-name">Kontaktiert</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele Interessenten wurden tats&auml;chlich telefonisch erreicht?</div>
+            <div class="kpi-badge badge-blue">CRM</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-num">3</div>
+            <div class="kpi-name">Vorqualifiziert</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele haben die 5 Fragen durchlaufen und sind <strong>echter Interessent</strong>?</div>
+            <div class="kpi-badge badge-blue">CRM</div>
+          </div>
+
+          <div class="kpi-row highlight">
+            <div class="kpi-num">4</div>
+            <div class="kpi-name">Termine gebucht</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele Online-Meetings wurden vereinbart? <strong>Konkret terminiert, nicht &ldquo;ruft zur&uuml;ck&rdquo;.</strong></div>
+            <div class="kpi-badge badge-gold">Ziel</div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-num">5</div>
+            <div class="kpi-name">Meetings stattgefunden</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele Termine wurden tats&auml;chlich durchgef&uuml;hrt? Differenz = No-Show-Rate.</div>
+            <div class="kpi-badge badge-blue">CRM</div>
+          </div>
+
+          <div class="kpi-row goal">
+            <div class="kpi-num">6</div>
+            <div class="kpi-name">Reservierungen</div>
+            <div class="kpi-arrow">&rarr;</div>
+            <div class="kpi-what">Wie viele Reservierungen &amp; Beurkundungen diese Woche? <strong>Das ist das Ziel.</strong></div>
+            <div class="kpi-badge badge-green">&#10003; Ziel</div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+
+          <!-- Reporting-Rhythmus -->
+          <div class="r-card r-blue">
+            <div class="r-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Reporting-Rhythmus
+            </div>
+            <div class="r-item"><div class="r-dot-blue"></div><strong>W&ouml;chentlich:</strong> Zahlen ins CRM einpflegen &mdash; vor dem Call mit Daniel</div>
+            <div class="r-item"><div class="r-dot-blue"></div><strong>14-t&auml;gig:</strong> Feedback-Call mit <em>Daniel</em> &mdash; KPIs, offene Interessenten, n&auml;chste Schritte</div>
+            <div class="r-item"><div class="r-dot-blue"></div><strong>Monatlich:</strong> Strategiegespräch mit <em>Olli</em> &mdash; Kurs, Optimierungen, Upsells</div>
+            <div class="r-item"><div class="r-dot-blue"></div><strong>Jederzeit:</strong> WhatsApp-Gruppe f&uuml;r schnelle Fragen &mdash; wir antworten.</div>
+          </div>
+
+          <!-- Was die Zahlen bedeuten -->
+          <div class="r-card r-std">
+            <div class="r-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Was die Zahlen dir sagen
+            </div>
+            <div class="diag-item">
+              <div class="diag-icon" style="color:#ff7060;">&#9660;</div>
+              <div class="diag-text"><strong>Viele Anfragen, wenig Kontakte?</strong> &rarr; Reaktionszeit pr&uuml;fen &mdash; <em>Slide 01</em></div>
+            </div>
+            <div class="diag-item">
+              <div class="diag-icon" style="color:#ff7060;">&#9660;</div>
+              <div class="diag-text"><strong>Viele Kontakte, wenig Termine?</strong> &rarr; Vorqualifikation &amp; Nachfassen pr&uuml;fen &mdash; <em>Slide 02 / 06</em></div>
+            </div>
+            <div class="diag-item">
+              <div class="diag-icon" style="color:#ff7060;">&#9660;</div>
+              <div class="diag-text"><strong>Termine da, aber kein Abschluss?</strong> &rarr; Meeting-Struktur &amp; Einw&auml;nde &mdash; <em>Slide 05 / 07</em></div>
+            </div>
+            <div class="diag-item">
+              <div class="diag-icon" style="color:#ffc400;">&#9654;</div>
+              <div class="diag-text"><strong>Hohe No-Show-Rate?</strong> &rarr; Terminerinnerungen aktivieren, WhatsApp-Best&auml;tigung senden</div>
+            </div>
+          </div>
+
+          <!-- CRM Hinweis -->
+          <div class="r-card r-gold">
+            <div class="r-title" style="color:#ffc400;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffc400" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Wichtig: CRM ist die einzige Wahrheit
+            </div>
+            <div style="font-size:clamp(10px,0.82vw,13px);color:rgba(255,255,255,0.7);line-height:1.4;">Meta-Zahlen <strong style="color:#ffffff;">unterz&auml;hlen</strong> systembedingt. Was im CRM steht, sind deine echten Anfragen &mdash; nicht was Meta berichtet.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="rule-text">
+          <strong>Was du nicht misst, kannst du nicht verbessern.</strong>
+          Zahlen ins CRM einzupflegen dauert 5 Minuten pro Woche &mdash;
+          und zeigt dir &amp; uns genau <em>wo der Hebel liegt.</em>
+          Kein Bauchgef&uuml;hl, kein Raten &mdash; gemeinsam optimieren auf Basis echter Daten.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
