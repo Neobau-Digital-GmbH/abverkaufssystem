@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>neubau.marketing &ndash; Vertriebssystem 2026</title>
+<title>neubau.marketing &ndash; Abverkaufssystem 2026</title>
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100vw; height:100vh; overflow:hidden; background:#2c313c; font-family:sans-serif; }
@@ -18,114 +18,185 @@
   }
   .slide-frame.active { opacity:1; pointer-events:all; }
 
-  /* Loading */
-  #init-loading {
-    position:fixed; inset:0; background:#2c313c;
+  /* ── LOADING / INTRO SCREEN ── */
+  #init-screen {
+    position:fixed; inset:0;
+    background:radial-gradient(ellipse 120% 120% at 50% 40%, #1e2535 0%, #2c313c 70%);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:3vh; z-index:200; transition:opacity 0.6s ease;
+    gap:0; z-index:200;
+    transition:opacity 0.8s ease;
   }
-  #init-loading.hidden { opacity:0; pointer-events:none; }
-  .init-logo { width:clamp(160px,16vw,260px); height:auto; opacity:0.9; }
-  .init-bar-wrap { width:clamp(160px,18vw,280px); height:2px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
-  .init-bar { height:100%; width:0%; background:linear-gradient(90deg,#5b8ff1,#7aaaf5); border-radius:2px; transition:width 0.15s ease; }
-  .init-label { font-family:'Roboto',sans-serif; font-size:clamp(10px,0.8vw,13px); font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+  #init-screen::after {
+    content:''; position:absolute; inset:0;
+    background-image:radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px);
+    background-size:36px 36px; pointer-events:none;
+  }
+  #init-screen.fade-out { opacity:0; pointer-events:none; }
 
-  /* Nav buttons */
+  .init-logo { width:clamp(220px,22vw,320px); height:auto; opacity:0.95; position:relative; z-index:1; }
+
+  .init-divider {
+    width:clamp(40px,5vw,70px); height:1px;
+    background:linear-gradient(90deg,transparent,rgba(91,143,241,0.5),transparent);
+    margin:clamp(20px,3.5vh,36px) 0 clamp(18px,3vh,30px);
+    position:relative; z-index:1;
+  }
+
+  .init-meta {
+    display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.2vh,14px);
+    position:relative; z-index:1;
+    opacity:0; transition:opacity 0.5s ease;
+  }
+  .init-meta.visible { opacity:1; }
+
+  .init-subtitle {
+    font-family:'Roboto',sans-serif;
+    font-size:clamp(10px,0.82vw,13px); font-weight:700;
+    letter-spacing:0.28em; text-transform:uppercase;
+    color:rgba(255,255,255,0.38);
+  }
+
+  .init-tagline {
+    font-family:'Roboto',sans-serif;
+    font-size:clamp(14px,1.2vw,18px); font-weight:300;
+    color:rgba(255,255,255,0.72); letter-spacing:0.02em;
+  }
+
+  /* Loading bar — thin, under logo, fades when done */
+  .init-bar-wrap {
+    width:clamp(160px,18vw,260px); height:1px;
+    background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden;
+    margin-top:clamp(16px,2.5vh,28px);
+    position:relative; z-index:1;
+    transition:opacity 0.4s ease;
+  }
+  .init-bar { height:100%; width:0%; background:linear-gradient(90deg,#5b8ff1,#7aaaf5); border-radius:2px; transition:width 0.15s ease; }
+
+  /* Button */
+  #btn-start {
+    display:none; position:relative; z-index:1;
+    margin-top:clamp(20px,3vh,32px);
+    padding:clamp(13px,1.4vh,18px) clamp(32px,3.5vw,54px);
+    border-radius:50px;
+    background:linear-gradient(135deg,#5b8ff1 0%,#4a7de0 100%);
+    border:none;
+    color:#ffffff; font-family:'Roboto',sans-serif;
+    font-size:clamp(13px,1.1vw,17px); font-weight:700; letter-spacing:0.06em;
+    cursor:pointer;
+    display:none; align-items:center; gap:0.8vw;
+    transition:transform 0.2s, box-shadow 0.25s, background 0.25s;
+    box-shadow:0 4px 32px rgba(91,143,241,0.35), 0 1px 0 rgba(255,255,255,0.12) inset;
+  }
+  #btn-start:hover {
+    background:linear-gradient(135deg,#6b9ff5 0%,#5b8ff1 100%);
+    transform:translateY(-2px) scale(1.02);
+    box-shadow:0 8px 48px rgba(91,143,241,0.55), 0 1px 0 rgba(255,255,255,0.15) inset;
+  }
+  #btn-start:active { transform:scale(0.98); }
+  #btn-start.visible { display:flex; animation:btnfadein 0.6s ease both; }
+
+  .btn-icon { font-size:0.85em; opacity:0.9; }
+
+  @keyframes btnfadein {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── NAV BUTTONS ── */
   .nav-btn {
     position:fixed; top:50%; transform:translateY(-50%);
     width:clamp(36px,3.5vw,52px); height:clamp(36px,3.5vw,52px);
-    border-radius:50%; background:rgba(91,143,241,0.15); border:1px solid rgba(91,143,241,0.3);
+    border-radius:50%; background:rgba(91,143,241,0.12); border:1px solid rgba(91,143,241,0.25);
     color:#ffffff; font-size:clamp(16px,1.5vw,22px); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     z-index:100; transition:background 0.2s, border-color 0.2s, opacity 0.3s, transform 0.2s;
-    backdrop-filter:blur(8px); opacity:0.4;
+    backdrop-filter:blur(8px); opacity:0;
+    pointer-events:none;
   }
-  .nav-btn:hover { background:rgba(91,143,241,0.35); border-color:rgba(91,143,241,0.7); opacity:1; transform:translateY(-50%) scale(1.08); }
-  .nav-btn.hidden { opacity:0!important; pointer-events:none; }
+  .nav-btn.ready { opacity:0.35; pointer-events:all; }
+  .nav-btn:hover { background:rgba(91,143,241,0.32); border-color:rgba(91,143,241,0.65); opacity:1!important; transform:translateY(-50%) scale(1.08); }
+  .nav-btn.hidden { opacity:0!important; pointer-events:none!important; }
   #btn-prev { left:1.5vw; }
   #btn-next { right:1.5vw; }
 
-  /* Dot counter */
+  /* ── DOT COUNTER ── */
   #counter {
-    position:fixed; bottom:2.5vh; left:50%; transform:translateX(-50%);
-    display:flex; gap:8px; align-items:center; z-index:100;
-    opacity:0.4; transition:opacity 0.2s;
+    position:fixed; bottom:2.8vh; left:50%; transform:translateX(-50%);
+    display:flex; gap:7px; align-items:center; z-index:100;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.4s;
   }
-  #counter:hover { opacity:1; }
+  #counter.ready { opacity:0.35; pointer-events:all; }
+  #counter:hover { opacity:0.85!important; }
   .counter-dot {
-    width:6px; height:6px; border-radius:50%;
-    background:rgba(255,255,255,0.3);
+    width:5px; height:5px; border-radius:50%;
+    background:rgba(255,255,255,0.28);
     transition:background 0.3s, transform 0.3s; cursor:pointer;
   }
-  .counter-dot.active { background:#5b8ff1; transform:scale(1.4); box-shadow:0 0 8px rgba(91,143,241,0.6); }
-
-  /* Slide number overlay */
-  #slide-counter {
-    position:fixed; bottom:2.5vh; right:4.5vw;
-    font-family:'Roboto',sans-serif;
-    font-size:clamp(11px,0.88vw,14px); font-weight:700;
-    letter-spacing:0.14em; text-transform:uppercase;
-    color:rgba(255,255,255,0.25);
-    z-index:100; pointer-events:none;
-    transition:opacity 0.3s;
-  }
+  .counter-dot.active { background:#5b8ff1; transform:scale(1.5); box-shadow:0 0 6px rgba(91,143,241,0.7); }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="pres-wrap" id="pres-wrap"></div>
 <button class="nav-btn hidden" id="btn-prev">&#8592;</button>
-<button class="nav-btn" id="btn-next">&#8594;</button>
+<button class="nav-btn hidden" id="btn-next">&#8594;</button>
 <div id="counter"></div>
-<div id="slide-counter"></div>
 
-<div id="init-loading">
+<div id="init-screen">
   <img class="init-logo" src="https://ik.imagekit.io/ViewRStudio/Neobau%20Digital%20GmbH/Grafik/Logo/1.png" alt="neubau.marketing">
-  <div class="init-bar-wrap"><div class="init-bar" id="init-bar"></div></div>
-  <div class="init-label" id="init-label">Wird geladen&hellip;</div>
+  <div class="init-divider"></div>
+  <div class="init-meta" id="init-meta">
+    <div class="init-subtitle">Abverkaufssystem &middot; 2026</div>
+    <div class="init-tagline">Das operative Handbuch f&uuml;r deinen Vertrieb.</div>
+  </div>
+  <div class="init-bar-wrap" id="bar-wrap">
+    <div class="init-bar" id="init-bar"></div>
+  </div>
+  <button id="btn-start"><span class="btn-icon">&#9654;</span> Handbuch starten</button>
 </div>
 
 <script>
   const BASE = 'https://neobau-digital-gmbh.github.io/abverkaufssystem/';
 
-  // Slides — erweitern sobald neue Slides gebaut werden
   const SLIDES = [
-    BASE + 'slide_00.html',
-    BASE + 'slide_00a.html',
-    BASE + 'slide_01.html',
-    BASE + 'slide_02.html',
-    BASE + 'slide_02a.html',
-    BASE + 'slide_03.html',
-    BASE + 'slide_04.html',
-    BASE + 'slide_05.html',
-    BASE + 'slide_05a.html',
-    BASE + 'slide_05a.html',
-    BASE + 'slide_06.html',
-    BASE + 'slide_07.html',
-    BASE + 'slide_08.html',
-    BASE + 'slide_09.html',
+    BASE + 'slide_00.html',    // Der Markt hat sich verändert
+    BASE + 'slide_00a.html',   // Die ersten 5 Minuten entscheiden
+    BASE + 'slide_01.html',    // Reaktionszeit
+    BASE + 'slide_02.html',    // Vorqualifikation
+    BASE + 'slide_02a.html',   // Vorqualifikation Hands-on
+    BASE + 'slide_03.html',    // Käufertypen
+    BASE + 'slide_04.html',    // Eigennutzer vs. Kapitalanleger
+    BASE + 'slide_05.html',    // Das Online-Meeting
+    BASE + 'slide_05a.html',   // Online-Meeting Hands-on
+    BASE + 'slide_06.html',    // Nachfassen
+    BASE + 'slide_07.html',    // Einwände
+    BASE + 'slide_08.html',    // Marktargumente 2026
+    BASE + 'slide_09.html',    // KPIs & Reporting
   ];
 
-  let current = 0, isTransitioning = false;
+  let current = 0, isTransitioning = false, allLoaded = false;
   const frames = [];
-  const presWrap     = document.getElementById('pres-wrap');
-  const btnPrev      = document.getElementById('btn-prev');
-  const btnNext      = document.getElementById('btn-next');
-  const counter      = document.getElementById('counter');
-  const slideCounter = document.getElementById('slide-counter');
-  const initLoad     = document.getElementById('init-loading');
-  const initBar      = document.getElementById('init-bar');
-  const initLabel    = document.getElementById('init-label');
+
+  const presWrap   = document.getElementById('pres-wrap');
+  const btnPrev    = document.getElementById('btn-prev');
+  const btnNext    = document.getElementById('btn-next');
+  const counter    = document.getElementById('counter');
+  const initScreen = document.getElementById('init-screen');
+  const initBar    = document.getElementById('init-bar');
+  const barWrap    = document.getElementById('bar-wrap');
+  const btnStart   = document.getElementById('btn-start');
 
   // Dots
   SLIDES.forEach((_, i) => {
     const dot = document.createElement('div');
     dot.className = 'counter-dot' + (i === 0 ? ' active' : '');
-    dot.addEventListener('click', () => goTo(i));
+    dot.addEventListener('click', () => allLoaded && goTo(i));
     counter.appendChild(dot);
   });
 
-  // iFrames laden
+  // iFrames
   let loadedCount = 0;
   SLIDES.forEach((url, i) => {
     const iframe = document.createElement('iframe');
@@ -136,23 +207,31 @@
       loadedCount++;
       const pct = Math.round((loadedCount / SLIDES.length) * 100);
       initBar.style.width = pct + '%';
-      initLabel.textContent = pct < 100 ? 'Lade\u2026 ' + pct + '%' : 'Bereit.';
       if (loadedCount === SLIDES.length) {
-        setTimeout(() => {
-          initLoad.classList.add('hidden');
-          setTimeout(() => initLoad.remove(), 700);
-        }, 400);
+        allLoaded = true;
+        barWrap.style.opacity = '0';
+        document.getElementById('init-meta').classList.add('visible');
+        setTimeout(() => { btnStart.classList.add('visible'); }, 350);
       }
     };
     presWrap.appendChild(iframe);
     frames.push(iframe);
   });
 
+  // Handbuch starten
+  btnStart.addEventListener('click', () => {
+    initScreen.classList.add('fade-out');
+    setTimeout(() => initScreen.remove(), 750);
+    btnPrev.classList.remove('hidden'); btnPrev.classList.add('ready');
+    btnNext.classList.remove('hidden'); btnNext.classList.add('ready');
+    counter.classList.add('ready');
+    updateUI();
+  });
+
   function updateUI() {
     document.querySelectorAll('.counter-dot').forEach((d, i) => d.classList.toggle('active', i === current));
     btnPrev.classList.toggle('hidden', current === 0);
     btnNext.classList.toggle('hidden', current === SLIDES.length - 1);
-    slideCounter.textContent = String(current).padStart(2, '0') + ' / ' + String(SLIDES.length - 1).padStart(2, '0');
   }
 
   function goTo(index) {
@@ -169,8 +248,8 @@
     }, 50);
   }
 
-  // Keyboard
   document.addEventListener('keydown', e => {
+    if (!allLoaded) return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
     if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); goTo(current - 1); }
     if (e.key === 'Home') { e.preventDefault(); goTo(0); }
@@ -179,7 +258,6 @@
 
   btnPrev.addEventListener('click', () => goTo(current - 1));
   btnNext.addEventListener('click', () => goTo(current + 1));
-  updateUI();
 </script>
 </body>
 </html>
