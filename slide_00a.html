@@ -9,88 +9,10 @@
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
 
-  /* ── INTRO SCREEN ── */
-  #intro {
-    position:fixed; inset:0; z-index:100;
-    background:#2c313c;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:3.5vh;
-    transition:opacity 0.8s ease;
-  }
-  #intro.fade-out { opacity:0; pointer-events:none; }
-
-  .intro-bg {
-    position:absolute; inset:0; pointer-events:none;
-    background:
-      radial-gradient(ellipse 70vw 70vh at 50% 40%, rgba(91,143,241,0.10) 0%, transparent 65%),
-      radial-gradient(ellipse 40vw 40vh at 20% 80%, rgba(91,143,241,0.06) 0%, transparent 60%);
-  }
-  .intro-bg::after {
-    content:''; position:absolute; inset:0;
-    background-image:radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size:40px 40px;
-  }
-
-  .intro-logo {
-    position:relative; z-index:1;
-    width:clamp(200px,22vw,340px); height:auto;
-    opacity:0; transform:translateY(16px) scale(0.97);
-    animation:introLogo 0.9s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
-  }
-  @keyframes introLogo { to { opacity:1; transform:translateY(0) scale(1); } }
-
-  .intro-divider {
-    position:relative; z-index:1;
-    width:clamp(60px,6vw,100px); height:1px;
-    background:linear-gradient(90deg,transparent,rgba(91,143,241,0.6),transparent);
-    opacity:0; animation:introFade 0.6s ease 0.9s forwards;
-  }
-  .intro-tagline {
-    position:relative; z-index:1;
-    font-size:clamp(11px,0.9vw,14px); font-weight:700;
-    letter-spacing:0.28em; text-transform:uppercase;
-    color:rgba(255,255,255,0.4);
-    opacity:0; animation:introFade 0.6s ease 1.1s forwards;
-  }
-  .intro-sub {
-    position:relative; z-index:1;
-    font-size:clamp(13px,1.05vw,17px); font-weight:400;
-    color:rgba(255,255,255,0.55); letter-spacing:0.04em;
-    opacity:0; animation:introFade 0.6s ease 1.3s forwards;
-  }
-  .intro-btn {
-    position:relative; z-index:1;
-    margin-top:1.5vh;
-    padding:clamp(12px,1.3vh,18px) clamp(28px,2.8vw,44px);
-    border-radius:40px;
-    background:linear-gradient(135deg,#5b8ff1 0%,#3d5a9e 100%);
-    border:none; cursor:pointer;
-    font-family:'Roboto',sans-serif;
-    font-size:clamp(13px,1.05vw,17px); font-weight:700;
-    letter-spacing:0.08em; color:#ffffff;
-    display:flex; align-items:center; gap:0.8vw;
-    box-shadow:0 4px 24px rgba(91,143,241,0.35);
-    opacity:0; transform:translateY(8px);
-    animation:btnAppear 0.7s cubic-bezier(0.22,1,0.36,1) 1.8s forwards;
-    transition:transform 0.2s, box-shadow 0.2s, background 0.2s;
-  }
-  .intro-btn:hover {
-    transform:translateY(-2px);
-    box-shadow:0 8px 32px rgba(91,143,241,0.5);
-    background:linear-gradient(135deg,#6b9cf3 0%,#4d6aae 100%);
-  }
-  .intro-btn:active { transform:translateY(1px); }
-  .intro-btn svg { width:clamp(14px,1.2vw,18px); height:clamp(14px,1.2vw,18px); flex-shrink:0; }
-  @keyframes btnAppear { to { opacity:1; transform:translateY(0); } }
-  @keyframes introFade { to { opacity:1; } }
-
-  /* ── SLIDE ── */
   .slide-wrap {
     position:fixed; inset:0; width:100vw; height:100vh;
     background:#2c313c; overflow:hidden; z-index:0;
-    opacity:0; transition:opacity 0.8s ease 0.1s;
   }
-  .slide-wrap.visible { opacity:1; }
 
   .bg {
     position:absolute; inset:0;
@@ -240,36 +162,16 @@
   .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
   .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
 
-  /* Content animations — einsetzen nachdem Intro weg ist */
-  .slide-title, .commit, .pipeline-wrap, .stats-row {
-    opacity:0; transform:translateY(10px);
-    transition:opacity 0.6s ease, transform 0.6s ease;
-  }
-  .slide-wrap.visible .slide-title   { opacity:1; transform:none; transition-delay:0.1s; }
-  .slide-wrap.visible .commit        { opacity:1; transform:none; transition-delay:0.25s; }
-  .slide-wrap.visible .pipeline-wrap { opacity:1; transform:none; transition-delay:0.4s; }
-  .slide-wrap.visible .stats-row     { opacity:1; transform:none; transition-delay:0.55s; }
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title   { animation:fadein 0.6s ease 0.1s both; }
+  .commit        { animation:fadein 0.6s ease 0.25s both; }
+  .pipeline-wrap { animation:fadein 0.6s ease 0.4s both; }
+  .stats-row     { animation:fadein 0.6s ease 0.55s both; }
 </style>
 </head>
 <body>
 
-<!-- INTRO -->
-<div id="intro">
-  <div class="intro-bg"></div>
-  <img class="intro-logo" src="https://ik.imagekit.io/ViewRStudio/Neobau%20Digital%20GmbH/Grafik/Logo/1.png" alt="neubau.marketing">
-  <div class="intro-divider"></div>
-  <div class="intro-tagline">Abverkaufssystem &middot; 2026</div>
-  <div class="intro-sub">Das operative Handbuch f&uuml;r deinen Vertrieb.</div>
-  <button class="intro-btn" onclick="startHandbuch()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="5 3 19 12 5 21 5 3"/>
-    </svg>
-    Handbuch starten
-  </button>
-</div>
-
-<!-- SLIDE -->
-<div class="slide-wrap" id="slideWrap">
+<div class="slide-wrap">
   <div class="bg"></div>
   <div class="slide">
 
@@ -451,11 +353,5 @@
   </div>
 </div>
 
-<script>
-  function startHandbuch() {
-    document.getElementById('intro').classList.add('fade-out');
-    document.getElementById('slideWrap').classList.add('visible');
-  }
-</script>
 </body>
 </html>
