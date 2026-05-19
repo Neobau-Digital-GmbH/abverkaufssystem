@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abverkaufssystem 08 – Marktargumente 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; font-family:'Roboto',sans-serif; background:#2c313c!important; color:#ffffff; }
+  .slide-wrap { position:fixed; inset:0; width:100vw; height:100vh; background:#2c313c; overflow:hidden; z-index:0; }
+  .bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80vw 70vh at 80% -15%, rgba(91,143,241,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50vw 50vh at -10% 95%, rgba(91,143,241,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40vw 40vh at 50% 50%, rgba(91,143,241,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .bg::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+  .slide { position:relative; width:100%; height:100%; display:flex; flex-direction:column; z-index:1; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:3vh 4.5vw 0; flex-shrink:0; }
+  .brand { font-size:clamp(14px,1.1vw,18px); font-weight:700; letter-spacing:0.07em; }
+  .brand span { color:#5b8ff1; }
+  .slide-num { font-size:clamp(12px,0.95vw,16px); letter-spacing:0.14em; color:rgba(255,255,255,0.55); text-transform:uppercase; font-weight:700; }
+  .slide-title { flex-shrink:0; padding:3vh 4.5vw 0; }
+  .eyebrow { display:flex; align-items:center; gap:1vw; font-size:clamp(12px,1vw,16px); font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:#5b8ff1; margin-bottom:1.2vh; }
+  .eyebrow::before, .eyebrow::after { content:''; height:1px; width:2.5vw; background:rgba(91,143,241,0.5); flex-shrink:0; }
+  .headline { font-size:clamp(26px,3.4vw,56px); font-weight:900; line-height:1.05; }
+  .headline .hl { font-style:italic; background:linear-gradient(135deg,#5b8ff1 0%,#7aaaf5 50%,#3d5a9e 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .body { flex:1; display:flex; flex-direction:column; padding:1.5vh 4.5vw 1.5vh; gap:1.1vh; min-height:0; justify-content:center; }
+
+  /* INTRO BAR */
+  .intro-bar {
+    flex-shrink:0; border-radius:10px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    padding:clamp(7px,0.8vh,11px) clamp(14px,1.4vw,20px);
+    display:flex; align-items:center; gap:1.5vw;
+    font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.65);
+  }
+  .intro-bar svg { flex-shrink:0; }
+  .intro-bar strong { color:#ffffff; }
+  .intro-bar em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  /* 2x2 GRID */
+  .arg-grid { flex:0 0 auto; display:flex; gap:1.2vw; align-items:stretch; }
+  .arg-col  { flex:1; min-width:0; display:flex; flex-direction:column; gap:1.2vw; }
+
+  /* ARGUMENT KARTE */
+  .arg-card {
+    flex:1; min-width:0; border-radius:14px;
+    padding:clamp(13px,1.4vh,19px) clamp(13px,1.3vw,18px);
+    display:flex; flex-direction:column; gap:0.9vh;
+    position:relative;
+  }
+  .ac-blue  { background:linear-gradient(145deg,rgba(91,143,241,0.10) 0%,rgba(91,143,241,0.03) 100%); border:1px solid rgba(91,143,241,0.28); }
+  .ac-green { background:linear-gradient(145deg,rgba(52,199,89,0.09) 0%,rgba(52,199,89,0.02) 100%);  border:1px solid rgba(52,199,89,0.25); }
+  .ac-gold  { background:linear-gradient(145deg,rgba(255,196,0,0.09) 0%,rgba(255,196,0,0.02) 100%);  border:1px solid rgba(255,196,0,0.25); }
+  .ac-teal  { background:linear-gradient(145deg,rgba(0,196,196,0.09) 0%,rgba(0,196,196,0.02) 100%);  border:1px solid rgba(0,196,196,0.22); }
+
+  .ac-blue::before  { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.55),transparent); }
+  .ac-green::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(52,199,89,0.5),transparent); }
+  .ac-gold::before  { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,196,0,0.45),transparent); }
+  .ac-teal::before  { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(0,196,196,0.4),transparent); }
+
+  /* Big number */
+  .arg-number {
+    font-size:clamp(28px,3.2vw,50px); font-weight:900; line-height:1;
+  }
+  .an-blue  { background:linear-gradient(135deg,#5b8ff1,#7aaaf5); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .an-green { background:linear-gradient(135deg,#34c759,#5dde80); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .an-gold  { background:linear-gradient(135deg,#ffc400,#ffd966); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .an-teal  { background:linear-gradient(135deg,#00c4c4,#00e0e0); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .arg-source { font-size:clamp(8px,0.66vw,10px); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:-0.3vh; }
+  .arg-title { font-size:clamp(12px,1.1vw,17px); font-weight:900; color:#ffffff; line-height:1.2; }
+  .arg-desc { font-size:clamp(10px,0.85vw,14px); color:rgba(255,255,255,0.65); line-height:1.4; }
+  .arg-desc strong { color:rgba(255,255,255,0.88); font-weight:700; }
+
+  .arg-tag-row { display:flex; gap:0.5vw; }
+  .arg-tag { font-size:clamp(8px,0.65vw,10px); font-weight:700; letter-spacing:0.07em; text-transform:uppercase; padding:1px 6px; border-radius:5px; }
+  .at-en  { background:rgba(52,199,89,0.12);  color:#34c759; border:1px solid rgba(52,199,89,0.22); }
+  .at-ka  { background:rgba(91,143,241,0.12); color:#7aaaf5; border:1px solid rgba(91,143,241,0.22); }
+  .at-all { background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12); }
+
+  /* "Sag das"-Zeile */
+  .arg-say {
+    border-radius:8px; padding:clamp(7px,0.8vh,10px) clamp(9px,0.9vw,13px);
+    font-size:clamp(10px,0.85vw,13px); font-style:italic; color:#ffffff; line-height:1.45;
+  }
+  .ac-blue  .arg-say { background:rgba(91,143,241,0.10); border:1px solid rgba(91,143,241,0.2); }
+  .ac-green .arg-say { background:rgba(52,199,89,0.09);  border:1px solid rgba(52,199,89,0.18); }
+  .ac-gold  .arg-say { background:rgba(255,196,0,0.09);  border:1px solid rgba(255,196,0,0.2); }
+  .ac-teal  .arg-say { background:rgba(0,196,196,0.09);  border:1px solid rgba(0,196,196,0.18); }
+
+  /* SYNTHESE */
+  .synthese {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    padding:clamp(10px,1.1vh,14px) clamp(14px,1.4vw,20px);
+    display:flex; align-items:center; gap:2vw;
+    position:relative; overflow:hidden;
+  }
+  .synthese::after { content:''; position:absolute; top:0; left:8%; right:8%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); }
+  .synth-label { flex-shrink:0; font-size:clamp(9px,0.72vw,11px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.38); min-width:6vw; }
+  .synth-text { flex:1; font-size:clamp(12px,1vw,16px); font-weight:700; color:#ffffff; line-height:1.4; font-style:italic; }
+  .synth-text em { font-style:normal; color:#5b8ff1; }
+  .synth-note { flex-shrink:0; font-size:clamp(10px,0.82vw,13px); color:rgba(255,255,255,0.4); line-height:1.35; max-width:14vw; text-align:right; }
+
+  /* RULE BOX */
+  .rule-box {
+    flex-shrink:0; border-radius:12px;
+    background:rgba(91,143,241,0.08); border:1px solid rgba(91,143,241,0.25);
+    padding:clamp(10px,1.1vh,14px) clamp(16px,1.5vw,22px);
+    display:flex; align-items:center; gap:1.5vw;
+    position:relative; overflow:hidden;
+  }
+  .rule-box::before { content:''; position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg,transparent,rgba(91,143,241,0.4),transparent); }
+  .rule-icon svg { width:clamp(16px,1.6vw,22px); height:clamp(16px,1.6vw,22px); flex-shrink:0; }
+  .rule-text { flex:1; font-size:clamp(11px,0.9vw,14px); color:rgba(255,255,255,0.82); line-height:1.5; }
+  .rule-text strong { color:#ffffff; font-weight:900; }
+  .rule-text em { font-style:normal; color:#5b8ff1; font-weight:700; }
+
+  .footer { padding:0 4.5vw 2.5vh; display:flex; align-items:center; justify-content:space-between; position:relative; flex-shrink:0; }
+  .footer::before { content:''; position:absolute; top:0; left:4.5vw; right:4.5vw; height:1px; background:rgba(255,255,255,0.15); }
+  .footer-text { font-size:clamp(12px,0.95vw,16px); font-weight:500; color:rgba(255,255,255,0.75); letter-spacing:0.08em; padding-top:1.5vh; }
+
+  @keyframes fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .slide-title { animation:fadein 0.6s ease 0.05s both; }
+  .intro-bar   { animation:fadein 0.6s ease 0.1s both; }
+  .arg-grid    { animation:fadein 0.6s ease 0.18s both; }
+  .synthese    { animation:fadein 0.6s ease 0.3s both; }
+  .rule-box    { animation:fadein 0.6s ease 0.38s both; }
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="bg"></div>
+  <div class="slide">
+
+    <div class="header">
+      <div class="brand">neubau<span>.</span>marketing</div>
+      <div class="slide-num">08 / 09</div>
+    </div>
+
+    <div class="slide-title">
+      <div class="eyebrow">Marktargumente 2026</div>
+      <div class="headline">Vier Zahlen die <span class="hl">f&uuml;r dich verkaufen.</span></div>
+    </div>
+
+    <div class="body">
+
+      <div class="intro-bar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Diese Zahlen sind <strong>belegbar und aktuell</strong> &mdash; nenn sie im Gespr&auml;ch mit Quelle. <em>Fakten schlagen Meinungen.</em> Alle Quellen: BBSR, Pestel-Institut, IVD, KfW (Stand 2025/2026).</span>
+      </div>
+
+      <div class="arg-grid">
+
+        <!-- SPALTE 1 -->
+        <div class="arg-col">
+
+          <!-- Wohnungsmangel -->
+          <div class="arg-card ac-blue">
+            <div class="arg-tag-row"><div class="arg-tag at-all">Beide Typen</div></div>
+            <div class="arg-number an-blue">1,4 Mio.</div>
+            <div class="arg-source">Pestel-Institut 2024 &middot; BBSR Prognose M&auml;rz 2025</div>
+            <div class="arg-title">Wohnungen fehlen heute in Deutschland</div>
+            <div class="arg-desc">320.000 Neubauten pro Jahr werden gebraucht &mdash; gebaut werden ca. 200.000. <strong>Das Angebot wird in den n&auml;chsten Jahren nicht besser.</strong></div>
+            <div class="arg-say">&ldquo;1,4 Millionen Wohnungen fehlen schon heute. Der Markt baut viel zu wenig. Wer jetzt kauft, kauft in ein strukturelles Angebot&shy;defizit hinein &mdash; das sichert Wert und Nachfrage.&rdquo;</div>
+          </div>
+
+          <!-- Mietpreis -->
+          <div class="arg-card ac-green">
+            <div class="arg-tag-row"><div class="arg-tag at-ka">Kapitalanleger</div><div class="arg-tag at-en">Eigennutzer</div></div>
+            <div class="arg-number an-green">+4&ndash;8&nbsp;%</div>
+            <div class="arg-source">DIW / empirica &middot; Mietpreisentwicklung Gro&szlig;st&auml;dte 2025</div>
+            <div class="arg-title">Mietpreisanstieg pro Jahr in deutschen Gro&szlig;st&auml;dten</div>
+            <div class="arg-desc">Neubaumieten liegen in M&uuml;nchen bei &gt; 24&nbsp;&euro;/m&sup2;, Berlin +5,7&nbsp;% in 2025. <strong>Mieten steigen schneller als Kaufpreise.</strong></div>
+            <div class="arg-say">&ldquo;Wer heute Kapitalanleger ist, profitiert doppelt: Kaufpreise steigen &mdash; und die Mieten steigen noch schneller. Ihre Rendite verbessert sich mit der Zeit automatisch.&rdquo;</div>
+          </div>
+
+        </div>
+
+        <!-- SPALTE 2 -->
+        <div class="arg-col">
+
+          <!-- Steuervorteile -->
+          <div class="arg-card ac-gold">
+            <div class="arg-tag-row"><div class="arg-tag at-ka">Kapitalanleger</div></div>
+            <div class="arg-number an-gold">5&nbsp;% p.a.</div>
+            <div class="arg-source">&#167; 7b EStG &middot; gilt f&uuml;r Neubauten im F&ouml;rderzeitraum</div>
+            <div class="arg-title">Steuerliche Sonderabschreibung auf Neubau</div>
+            <div class="arg-desc">Zus&auml;tzlich zur normalen Abschreibung: 5&nbsp;% pro Jahr &uuml;ber 4 Jahre = 20&nbsp;% Steuervorteil auf die Bemessungsgrundlage. <strong>Hinweis: immer mit Steuerberater abkl&auml;ren.</strong></div>
+            <div class="arg-say">&ldquo;Der Staat beteiligt sich an Ihrer Investition &mdash; durch die steuerliche Sonderabschreibung sparen Sie in den ersten 4 Jahren deutlich. Das verbessert Ihren monatlichen Cashflow direkt.&rdquo;</div>
+          </div>
+
+          <!-- KfW -->
+          <div class="arg-card ac-teal">
+            <div class="arg-tag-row"><div class="arg-tag at-en">Eigennutzer</div><div class="arg-tag at-ka">Kapitalanleger</div></div>
+            <div class="arg-number an-teal">150.000&nbsp;&euro;</div>
+            <div class="arg-source">KfW 297/298 &middot; Effizienzhaus 40 &middot; Zinssatz tagesaktuell auf kfw.de pr&uuml;fen</div>
+            <div class="arg-title">Staatliche F&ouml;rderung &mdash; deutlich unter Marktkonditionen</div>
+            <div class="arg-desc">Bis zu 150.000&nbsp;&euro; pro Einheit (mit QNG-Siegel) zu Zinsen weit unter dem Markt&shy;niveau &mdash; <strong>Voraussetzung: Effizienzhaus-40-Standard.</strong> Kombinierbar mit normaler Bankfinanzierung.</div>
+            <div class="arg-say">&ldquo;Ein Teil der Finanzierung l&auml;uft &uuml;ber die staatliche F&ouml;rderbank &mdash; zu Konditionen die eine normale Bank nicht erreicht. Das senkt die monatliche Belastung direkt. Den aktuellen Zinssatz schauen wir gemeinsam raus.&rdquo;</div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- SYNTHESE-ARGUMENT -->
+      <div class="synthese">
+        <div class="synth-label">Alles zusammen &rarr;</div>
+        <div class="synth-text">
+          &ldquo;Zinsen, Preise, Verf&uuml;gbarkeit &mdash; alle drei entwickeln sich in eine Richtung. Wer heute nicht kauft, <em>kauft morgen teurer, mit weniger Auswahl und schlechteren F&ouml;rderbedingungen.</em>&rdquo;
+        </div>
+        <div class="synth-note">Passt auf fast jeden Einwand &mdash; mit echten Zahlen belegbar.</div>
+      </div>
+
+      <!-- RULE BOX -->
+      <div class="rule-box">
+        <div class="rule-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b8ff1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="rule-text">
+          <strong>Nenn die Quelle &mdash; immer.</strong>
+          &ldquo;Pestel-Institut 2024&rdquo; oder &ldquo;BBSR M&auml;rz 2025&rdquo; klingt konkreter als &ldquo;Experten sagen&rdquo;.
+          <em>Wer Quellen nennt, wirkt wie ein Berater. Wer keine nennt, klingt wie ein Verk&auml;ufer.</em>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">Neobau Digital GmbH &middot; neubau.marketing</div>
+      <div class="footer-text">Vertraulich &middot; Abverkaufssystem 2026</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
